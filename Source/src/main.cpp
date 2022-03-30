@@ -1,9 +1,32 @@
-#include <Arduino.h>
+#define keypad
+//#define door_sensor
+// Define other nodes to be made
 
 void setup() {
-  // put your setup code here, to run once:
+  // To run once
+  
+  // ------------------------------- \\
+  // Define network SSID and PASS
+  // Define GPIO pins to read from
+  // Run setPass()
+  
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // To run repetedly
+
+  // if (keypad)
+    // ------------------------------- \\
+    // Check for addNode()
+    // > Make a connection 
+
+    // Check for enableSys()
+    // > Set a flag to enable some stuff
+
+    // Check for disableSys()
+    // > Set a flag to not check stuff
+    
+    // Check for removeNode()
+    // > Remove the node that is pinging some specific thing
+
 }
