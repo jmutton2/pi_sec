@@ -1,6 +1,13 @@
+#include <Arduino.h>
+
 #define keypad
 //#define door_sensor
 // Define other nodes to be made
+
+#ifdef keypad
+  #include 'keypad.h'
+#endif
+
 
 void setup() {
   // To run once
