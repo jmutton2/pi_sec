@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #define KEYPAD
 //#define DOOR_SENSOR
 // Define other nodes to be made
@@ -19,7 +17,10 @@ void setup()
   // ------------------------------- \\
   // Define network SSID and PASS
   // Define GPIO pins to read from
-  // Run setPass()
+
+  // if (keypad)
+    // Run Set_Pass()
+  
 }
 
 void loop()
@@ -27,16 +28,34 @@ void loop()
   // To run repetedly
 
   // if (keypad)
-  // ------------------------------- \\
-    // Check for addNode()
-  // > Make a connection
+    // ------------------------------- \\
+    // Check for Add_Node()
+    // > Make a connection 
 
-  // Check for enableSys()
-  // > Set a flag to enable some stuff
+    // Check for Enabl_Sys()
+    // > Set a flag to enable some stuff
+    // > Send sys_flag to all peers
 
-  // Check for disableSys()
-  // > Set a flag to not check stuff
+    // Check for Disable_Sys()
+    // > Set a flag to not check stuff
+    // > Send sys_flag to all peers
+    
+    // Check for Remove_Node()
+    // > Check for close packet
+    // > Send close packet
+    // > Close the connection that sent close packet
 
-  // Check for removeNode()
-  // > Remove the node that is pinging some specific thing
+
+  // if (door_sensor)
+    // Make connection 
+
+    // Check Flag_Change()
+    // > Set sys_flag if flag changed values << THIS IS FLAG
+
+    // Check Door_State_Changed()
+    // > Send door_sensor_flag through sock
+
+    // Check for Close_Connection()
+    // > Send a request to close packet
+    // > Await response and close if close packet received
 }
