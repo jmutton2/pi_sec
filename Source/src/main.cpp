@@ -1,16 +1,5 @@
 #include <Arduino.h>
 
-#define KEYPAD
-//#define DOOR_SENSOR
-// Define other nodes to be made
-
-#ifdef KEYPAD
-#include <Touch.h>
-#endif
-
-#ifdef DOOR_SENSOR
-
-#endif
 
 void setup()
 {
