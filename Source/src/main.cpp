@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#include <High_Power_Peer.c>
+
 // Keypad
 #define KEYPAD
 
@@ -14,6 +17,7 @@
 
 void setup()
 {
+  Server_Init();
   // To run once
 
   // ------------------------------- \\

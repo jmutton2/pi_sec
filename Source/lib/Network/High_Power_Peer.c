@@ -1,6 +1,7 @@
 // All peers
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
+#include <stdio.h>
 
 const char *ssid = "ESP32-Access-Point";
 const char *password = "123456789";
