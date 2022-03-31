@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <High_Power_Peer.c>
+#include "High_Power_Peer.h"
 
 // Keypad
 #define KEYPAD
@@ -15,14 +15,16 @@
 
 #endif
 
+const int SYS_STATUS = 26; // <<< CHANGE THIS TO WHATEVER PIN THE KEYPAD IS CONNECTION TO
+const int ALERT_INTERRUPT = 27;
+const int RAISE_ALARM_INTERRUPT = 28;
+
+int countdown = 0;
+int sys_enabled = 0;
+
 void setup()
 {
   Server_Init();
-  // To run once
-
-  // ------------------------------- \\
-  // Define network SSID and PASS
-  // Define GPIO pins to read from
 
   // if (keypad)
   // Run Set_Pass()
@@ -30,36 +32,48 @@ void setup()
 
 void loop()
 {
-  // To run repetedly
+  attachInterrupt(SYS_STATUS, CHANGE_SYS_STATUS, CHANGE);
 
   // if (keypad)
-  // ------------------------------- \\
-    // Check for Add_Node()
-  // > Make a connection
+  attachInterrupt(ALERT_INTERRUPT, AWAIT_ALARM, HIGH);
+  attachInterrupt(RAISE_ALARM_INTERRUPT, RAISE_ALARM, HIGH);
 
-  // Check for Enabl_Sys()
-  // > Set a flag to enable some stuff
-  // > Send sys_flag to all peers
+  // Countdown to check for timer
+  if (countdown)
+  {
+    // Timer decrease
+    // if (password == saved password)
+    // digitalWrite(ALERT_INTERRUPT, LOW);
 
-  // Check for Disable_Sys()
-  // > Set a flag to not check stuff
-  // > Send sys_flag to all peers
+    // if (password !== saved password)
+    //  digitalWrite(RAISE_ALARM_INITERRUPT, HIGH);
+  }
 
   // Check for Remove_Node()
   // > Check for close packet
   // > Send close packet
   // > Close the connection that sent close packet
 
-  // if (door_sensor)
-  // Make connection
-
-  // Check Flag_Change()
-  // > Set sys_flag if flag changed values << THIS IS FLAG
-
-  // Check Door_State_Changed()
-  // > Send door_sensor_flag through sock
-
   // Check for Close_Connection()
   // > Send a request to close packet
   // > Await response and close if close packet received
+}
+
+// Enable or Disable the system
+void CHANGE_SYS_STATUS()
+{
+  sys_enabled = !sys_enabled;
+}
+
+// Trigger the alarm countdown noise
+void AWAIT_ALARM()
+{
+  countdown = 1;
+}
+
+// Trigger the alarm
+void RAISE_ALARM()
+{
+  digitalWrite(ALERT_INTERRUPT, LOW);
+  digitalWrite(RAISE_ALARM_INTERRUPT, HIGH);
 }
