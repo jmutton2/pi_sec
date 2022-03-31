@@ -1,8 +1,5 @@
 #include <Arduino.h>
-<<<<<<< Updated upstream
-=======
 #include "High_Power_Peer.cpp"
->>>>>>> Stashed changes
 
 
 void setup()
