@@ -1,8 +1,8 @@
-#include <WiFi.h>
-
+// Keypad
 #define KEYPAD
+
+// Door_Sensor
 //#define DOOR_SENSOR
-// Define other nodes to be made
 
 #ifdef KEYPAD
 #include <Touch.h>
