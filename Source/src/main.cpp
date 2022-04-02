@@ -26,7 +26,17 @@ const int RESET_ALARM_KEY = 26;
 const int ALERT_INTERRUPT = 27;
 const int RAISE_ALARM_INTERRUPT = 28;
 
+//------------IDEA__--------------------
+// Could have enter trigger a submit which lets the password be readable if the -- nevermind lol
+
 int sys_enabled;
+
+void ENABLE_SYS(void);
+void DISABLE_SYS(void);
+void RESET_ALARM(void);
+void RAISE_ALARM(void);
+void AWAIT_ALARM(void);
+void CHECK_PASS(void);
 
 void setup()
 {
