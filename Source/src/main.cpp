@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <High_Power_Peer.c>
+#include "High_Power_Peer.h"
 
 // Keypad
 #define KEYPAD
@@ -15,51 +15,98 @@
 
 #endif
 
+// Acts as shared memory
+const int PASSWORD_STATUS = 20;
+const int RING = 21;
+const int COUNTDOWN = 22;
+const int DISABLE_SYS_KEY = 23;
+const int ENABLE_SYS_KEY = 24;
+const int ENABLE_NETWORK_PEERS = 25;
+const int RESET_ALARM_KEY = 26;
+const int ALERT_INTERRUPT = 27;
+const int RAISE_ALARM_INTERRUPT = 28;
+
+//------------IDEA__--------------------
+// Could have enter trigger a submit which lets the password be readable if the -- nevermind lol
+
+int sys_enabled;
+
+void ENABLE_SYS(void);
+void DISABLE_SYS(void);
+void RESET_ALARM(void);
+void RAISE_ALARM(void);
+void AWAIT_ALARM(void);
+void CHECK_PASS(void);
+
 void setup()
 {
+  sys_enabled = 1;
+
+  // if (HIGH_POWER)
   Server_Init();
-  // To run once
+  // if (ENABLE_NETWORK_PEERS) >> Peer_Init()
 
-  // ------------------------------- \\
-  // Define network SSID and PASS
-  // Define GPIO pins to read from
-
-  // if (keypad)
+  // if (KEYPAD)
   // Run Set_Pass()
 }
 
 void loop()
 {
-  // To run repetedly
+  // Interrupt to enable nad disable the system
+  // Triggered by change to system rising/falling
+  // Could have two pins or just one (ENABLE_SYS_KEY and DISABLE_SYS_KEY)
+  // attachInterrupt(DISABLE_SYS_KEY, DISABLE_SYS, FALLING);
+  attachInterrupt(ENABLE_SYS_KEY, ENABLE_SYS, RISING);
 
-  // if (keypad)
-  // ------------------------------- \\
-    // Check for Add_Node()
-  // > Make a connection
+  // Handles turning off the alarm
+  attachInterrupt(RESET_ALARM_KEY, RESET_ALARM, RISING);
 
-  // Check for Enabl_Sys()
-  // > Set a flag to enable some stuff
-  // > Send sys_flag to all peers
+  // Sets the pin to ask for a password
+  // Checks a password correct pin or password incorrect pin
+  attachInterrupt(ALERT_INTERRUPT, AWAIT_ALARM, RISING);
+  attachInterrupt(RAISE_ALARM_INTERRUPT, RAISE_ALARM, RISING);
 
-  // Check for Disable_Sys()
-  // > Set a flag to not check stuff
-  // > Send sys_flag to all peers
+  if (COUNTDOWN)
+  {
+    // delay(10000) << Wait for 10 seconds
+    attachInterrupt(PASSWORD_STATUS, CHECK_PASS, HIGH);
+    attachInterrupt(PASSWORD_STATUS, RESET_ALARM, LOW);
+  }
+}
 
-  // Check for Remove_Node()
-  // > Check for close packet
-  // > Send close packet
-  // > Close the connection that sent close packet
+// Arms the system
+void ENABLE_SYS()
+{
+  sys_enabled = 1;
+}
 
-  // if (door_sensor)
-  // Make connection
+// Disarms the system
+void DISABLE_SYS()
+{
+  sys_enabled = 1;
+}
 
-  // Check Flag_Change()
-  // > Set sys_flag if flag changed values << THIS IS FLAG
+// Turns the alarms off
+void RESET_ALARM()
+{
+  digitalWrite(ALERT_INTERRUPT, LOW);
+  digitalWrite(RAISE_ALARM_INTERRUPT, LOW);
+}
 
-  // Check Door_State_Changed()
-  // > Send door_sensor_flag through sock
+// Trigger the alarm countdown noise
+// Start
+void AWAIT_ALARM()
+{
+  digitalWrite(COUNTDOWN, HIGH);
+}
 
-  // Check for Close_Connection()
-  // > Send a request to close packet
-  // > Await response and close if close packet received
+void CHECK_PASS()
+{
+}
+
+// Trigger the alarm
+void RAISE_ALARM()
+{
+  digitalWrite(ALERT_INTERRUPT, LOW);
+  digitalWrite(RAISE_ALARM_INTERRUPT, HIGH);
 }
