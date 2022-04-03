@@ -1,4 +1,4 @@
-// All peers
+// All HP peers
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
 #include <stdio.h>
@@ -8,35 +8,49 @@ const char *password = "123456789";
 
 AsyncWebServer server(80);
 
-String header;
+const int ALERT_INTERRUPT = 27;
 
-String output26State = "off";
-String output27State = "off";
-
-const int output26 = 26;
-const int output27 = 27;
+// Set permanent IP address << Until we discover method to connect dynamically and make requests
+IPAddress local_IP(192, 168, 1, 185);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 0, 0);
 
 void Server_Init()
 {
-    Serial.begin(115200);
-    // Initialize the output variables as outputs
-    pinMode(output26, OUTPUT);
-    pinMode(output27, OUTPUT);
-    // Set outputs to LOW
-    digitalWrite(output26, LOW);
-    digitalWrite(output27, LOW);
+  Serial.begin(115200);
 
-    // Starts the access point
-    WiFi.softAP(ssid, password);
+  // Define interrupt pin
+  pinMode(ALERT_INTERRUPT, OUTPUT);
+  digitalWrite(ALERT_INTERRUPT, LOW);
 
-    // Some debugging
-    Serial.println();
-    Serial.print("IP address: ");
-    Serial.println(WiFi.softAPIP());
+  // Starts the access point
+  WiFi.softAP(ssid, password);
 
-    // Test route
-    server.on("/hello", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(200, "text/plain", "hello world"); });
+  // Some debugging
+  Serial.println();
+  Serial.print("IP address: ");
+  Serial.println(WiFi.softAPIP());
 
-    server.begin();
+  // Trigger an alert
+  server.on("/alert", HTTP_POST, [](AsyncWebServerRequest *request)
+            {
+                request->send(200, "text/plain", "Message Received");    
+                digitalWrite(ALERT_INTERRUPT, HIGH); });
+
+  server.begin();
 }
+
+/*/------------------------------------\*\
+| |----------FUTURE-EXPANSION----------| |
+\ \------------------------------------/ /
+
+Will connect to a local wifi network
+Create peer to peer socket connections among peers
+Use of kademlia to store and manage peers
+
+// Check for Remove_Node()
+// > Check for close packet
+// > Send close packet
+// > Close the connection that sent close packet
+
+*/

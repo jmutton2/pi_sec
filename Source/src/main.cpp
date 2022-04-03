@@ -1,52 +1,121 @@
 #include <Arduino.h>
-#include "High_Power_Peer.cpp"
 
+// DEFINE THE DEVICE
+#define KEYPAD
+//#define DOOR_SENSOR
+//#define CAMERA
+//#define AC_SENSOR
+//#define NETWORK_SENSOR
 
+#ifdef KEYPAD || NETWORK_SENSOR || AC_SENSOR || CAMERA
+#define HIGH_POWER
+#endif
+
+#ifdef DOOR_SENSOR
+#define LOW_POWER
+#endif
+
+#ifdef HIGH_POWER
+#include "High_Power_Peer.h"
+#endif
+
+#ifdef LOW_POWER
+#include "Low_Power_peer.h"
+#endif
+
+#ifdef KEYPAD
+#include <Touch.h>
+#endif
+
+#ifdef DOOR_SENSOR
+
+#endif
+
+// DEFINE SHARED MEMORY
+
+// -------------------
+
+// DEFINE PINS
+
+// -------------------
+
+// DEFINE FUNCTIONS
+
+// -------------------
+
+// SETUP
 void setup()
 {
-  Server_Init();
-  // To run once
+    //##IF DEFINED HP_DEVICE
+    // Start HP Server
+    // Note >> This needs to connect to other peers
 
-  // ------------------------------- \\
-  // Define network SSID and PASS
-  // Define GPIO pins to read from
+    //##IF DEFINED LP_DEVICE
+    // Start LP Server
 
-  // if (keypad)
-  // Run Set_Pass()
+    //##If DEFINED KEYPAD
+    // Create Password
+
+    // Enable System
+    // Note >> This needs to be relayed to other peers
 }
+// -------------------
 
+// LOOP
 void loop()
 {
-  // To run repetedly
 
-  // if (keypad)
-  // ------------------------------- \\
-    // Check for Add_Node()
-  // > Make a connection
+    //##IF DEFINED HP_DEVICE
+    //#STATE: ARMED
+    // Check for UNARM interrupt
+    // Check for AWAIT_ALARM interrupt
 
-  // Check for Enabl_Sys()
-  // > Set a flag to enable some stuff
-  // > Send sys_flag to all peers
+    //#STATE: UNARMED
+    // Check for ARM interrupt
 
-  // Check for Disable_Sys()
-  // > Set a flag to not check stuff
-  // > Send sys_flag to all peers
+    //##IF DEFINED LP_DEVICE
 
-  // Check for Remove_Node()
-  // > Check for close packet
-  // > Send close packet
-  // > Close the connection that sent close packet
+    //##If DEFINED KEYPAD
+    //#STATE: AWAITING ALARM
+    // Check for password correctness
+    // FALSE => set_state to ALARM_RINGING
+    // TRUE => set_state to UNARMED
 
-  // if (door_sensor)
-  // Make connection
+    //#STATE: ALARM_RINGING
+    // Check for password correctness
+    // TRUE => set_state to UNARMED
 
-  // Check Flag_Change()
-  // > Set sys_flag if flag changed values << THIS IS FLAG
+    //##IF DEFINED DOOR_SENSOR
+    // Check for DOOR_STATE_CHANGED interrupt
+    // Alert (POST) to parent
+}
+// -------------------
 
-  // Check Door_State_Changed()
-  // > Send door_sensor_flag through sock
+// Arms the system
+void ENABLE_SYS()
+{
+}
 
-  // Check for Close_Connection()
-  // > Send a request to close packet
-  // > Await response and close if close packet received
+// Disarms the system
+void DISABLE_SYS()
+{
+}
+
+// Turns the alarms off
+void RESET_ALARM()
+{
+}
+
+// Trigger the alarm countdown
+void AWAIT_ALARM()
+{
+}
+
+// Trigger the alarm
+void RAISE_ALARM()
+{
+}
+
+void CHECK_PASS()
+{
 }
