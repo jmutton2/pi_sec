@@ -27,10 +27,21 @@ void CHECK_PASS()
 {
 }
 
-Control *ControlInit(uint16_t max_size)
+Control *ControlInit()
 {
     Control *temp = malloc(sizeof(Control));
     temp->Buffer = BufferInit(PASSWORD_SIZE);
+
+    return temp;
+}
+
+Buffer *BufferInit(uint16_t max_size)
+{
+    Buffer *temp = malloc(sizeof(Buffer));
+
+    temp->base = malloc(sizeof(char) * max_size);
+    temp->size = 0;
+    temp->max_size = max_size;
 
     return temp;
 }

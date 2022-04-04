@@ -33,7 +33,6 @@
 
 #ifdef DOOR_SENSOR
 #include "DS_Loop.h"
-
 #endif
 
 // DEFINE SHARED MEMORY
