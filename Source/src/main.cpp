@@ -1,14 +1,15 @@
 #include <Arduino.h>
 #include "Control.h"
+#include "LP_Peer.h"
 
 // DEFINE THE DEVICE
-//#define KEYPAD
-//#define DOOR_SENSOR
+// #define KEYPAD
+#define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
 //#define NETWORK_SENSOR
 
-#ifdef KEYPAD || NETWORK_SENSOR || AC_SENSOR || CAMERA
+#if defined KEYPAD || defined NETWORK_SENSOR || defined AC_SENSOR || defined CAMERA
 #define HIGH_POWER
 #endif
 
@@ -18,25 +19,23 @@
 
 #ifdef HIGH_POWER
 #include "HP_Peer.h"
-#include "HP_Loop.h"
 #endif
 
 #ifdef LOW_POWER
 #include "LP_Peer.h"
-#include "LP_Loop.h"
 #endif
 
 #ifdef KEYPAD
-#include <Touch.h>
-#include "KP_Loop.h"
+// #include <Touch.h>
+#include "Keypad.h"
 #endif
 
 #ifdef DOOR_SENSOR
-#include "DS_Loop.h"
+#include "Door_Sensor.h"
 #endif
 
 // DEFINE SHARED MEMORY
-
+Control *control_ptr = ControlInit();
 // -------------------
 
 // DEFINE PINS
@@ -46,34 +45,40 @@
 // SETUP
 void setup()
 {
-    //##IF DEFINED HP_DEVICE
-    // Server_Init();
+#ifdef HIGH_POWER
+    Server_Init();
+#endif
 
-    //##IF DEFINED LP_DEVICE
-    // Wifi_Init();
+#ifdef LOW_POWER
+    Wifi_Init();
+#endif
 
-    //##If DEFINED KEYPAD
-    // Create_Pass();
-    // check for stored password, if none:
-    // Note >> This needs to be relayed to other peers
+#ifdef KEYPAD
+    Keypad_Init(control_ptr);
+#endif
 
-    // Enable_Sys();
-    // Note >> This needs to be relayed to other peers
+#ifdef DOOR_SENSOR
+
+#endif
 }
 // -------------------
 
 // LOOP
 void loop()
 {
-    //##IF DEFINED HP_DEVICE
-    // HP_Device_Loop();
+#ifdef HIGH_POWER
+    // HP_Device_Loop(control_ptr);
+#endif
 
-    //##IF DEFINED LP_DEVICE
+#ifdef LOW_POWER
+#endif
 
-    //##If DEFINED KEYPAD
-    // Keypad_Loop();
+#ifdef KEYPAD
+    Keypad_Loop(control_ptr);
+#endif
 
-    //##IF DEFINED DOOR_SENSOR
-    // Door_Sensor_Loop();
+#ifdef DOOR_SENSOR
+    Door_Sensor_Loop();
+#endif
 }
 // -------------------

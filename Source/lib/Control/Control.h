@@ -1,25 +1,28 @@
-#define PASSWORD_SIZE 5;
+#define PASSWORD_SIZE 5
 
-void ENABLE_SYS(void);
-void DISABLE_SYS(void);
-void RESET_ALARM(void);
-void AWAIT_ALARM(void);
-void RAISE_ALARM(void);
-void CHECK_PASS(void);
-
-typedef struct _Control
-{
-    uint16_t system_state;
-    Buffer *useless_information;
-} Control;
-
-Control *ControlInit(uint16_t);
+#include <stdlib.h>
 
 typedef struct _buffer
 {
     char *base;
-    uint16_t size;
-    uint16_t max_size;
+    int size;
+    int max_size;
 } Buffer;
 
-Buffer *BufferInit();
+Buffer *BufferInit(int max_size);
+
+typedef struct _Control
+{
+    int system_state;
+    Buffer *buffer;
+} Control;
+
+Control *ControlInit();
+
+void ENABLE_SYS(Control *);
+void DISABLE_SYS(Control *);
+void RESET_ALARM(Control *);
+void AWAIT_ALARM(Control *);
+void RAISE_ALARM(Control *);
+void CHECK_PASS(Control *, Buffer *);
+void CREATE_PASS(Control *);

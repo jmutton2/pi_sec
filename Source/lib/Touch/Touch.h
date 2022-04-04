@@ -1,6 +1,2 @@
-#include <Ardiuno.h>
-#include "freertos.h"
-
-typedef struct
-{
-};
+#include <Arduino.h>
+// #include "freertos.h"
