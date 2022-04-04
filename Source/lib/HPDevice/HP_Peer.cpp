@@ -48,13 +48,30 @@ void Server_Init()
 | |----------FUTURE-EXPANSION----------| |
 \ \------------------------------------/ /
 
-Will connect to a local wifi network
 Create peer to peer socket connections among peers
 Use of kademlia to store and manage peers
 
-// Check for Remove_Node()
-// > Check for close packet
-// > Send close packet
-// > Close the connection that sent close packet
+Check for Remove_Node()
+> Check for close packet
+> Send close packet
+> Close the connection that sent close packet
 
+
+// Note >> Mem system state will need to change based on peers
+void HP_Device_Loop(Control mem)
+{
+    if (mem->system_state == 2)
+    {
+    }
+
+    if (mem->system_state == 3)
+    {
+    }
+    //#STATE: ARMED
+    // Check for UNARM interrupt
+    // Check for AWAIT_ALARM interrupt
+
+    //#STATE: UNARMED
+    // Check for ARM interrupt
+}
 */

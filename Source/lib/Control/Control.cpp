@@ -1,38 +1,47 @@
 #include "Control.h"
+
+// Waiting to be armed
+void AWAIT_ARM(Control *mem)
+{
+    mem->system_state = 1;
+}
+
 // Arms the system
 // Note >> This needs to be relayed to other peers
 void ENABLE_SYS(Control *mem)
 {
-    mem->system_state = 1;
+    mem->system_state = 2;
 }
 
 // Disarms the system
 void DISABLE_SYS(Control *mem)
 {
-    mem->system_state = 2;
+    mem->system_state = 3;
 }
 
 // Turns the alarms off
 void RESET_ALARM(Control *mem)
 {
-    mem->system_state = 1;
+    mem->system_state = 2;
 }
 
 // Trigger the alarm countdown
 void AWAIT_ALARM(Control *mem)
 {
-    mem->system_state = 3;
+    mem->system_state = 4;
     // Start a countdown for 10 seconds
     // if CHECK_PASS() > 0
     // RESET_ALARM()
+    // else
+    // RAISE_ALARM()
 }
 
 // Trigger the alarm
 void RAISE_ALARM(Control *mem)
 {
-    mem->system_state = 4;
+    mem->system_state == 5;
     // if CHECK_PASS() > 0
-    // RESET_ALARM()
+    // RESET_ALARM() << Return to state 1 (new state)
 }
 
 void CHECK_PASS()
