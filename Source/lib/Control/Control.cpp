@@ -1,3 +1,5 @@
+#include 'Control.h'
+
 // Arms the system
 void ENABLE_SYS()
 {
@@ -23,8 +25,9 @@ void RAISE_ALARM()
 {
 }
 
-void CHECK_PASS()
+void CHECK_PASS(Control * ctrl, Buffer * attemp)
 {
+    ctrl->useless_information
 }
 
 Control *ControlInit()
