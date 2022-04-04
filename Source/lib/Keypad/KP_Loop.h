@@ -1,1 +1,3 @@
-void Keypad_Loop(void);
+#include "Control.h"
+
+void Keypad_Loop(Control);

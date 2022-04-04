@@ -1,11 +1,25 @@
-void Keypad_Loop()
+void Keypad_Loop(mem)
 {
-    //#STATE: AWAITING ALARM
-    // Check for password correctness
-    // FALSE => set_state to ALARM_RINGING
-    // TRUE => set_state to UNARMED
+    // If in await alarm state, give 10 seconds to disarm
+    if (mem->system_state == 3)
+    {
+        delay(10000);
+        if (CHECK_PASS() > 0)
+        {
+            mem->system_state = 2;
+        }
+        else
+        {
+            mem->system_state = 4;
+        }
+    }
 
-    //#STATE: ALARM_RINGING
-    // Check for password correctness
-    // TRUE => set_state to UNARMED
+    // If in alarm state, give option to reset
+    if (mem->system_state == 4)
+    {
+        if (CHECK_PASS() > 0)
+        {
+            mem->system_state = 2;
+        }
+    }
 }

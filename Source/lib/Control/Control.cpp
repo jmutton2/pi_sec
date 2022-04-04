@@ -1,30 +1,52 @@
 // Arms the system
-void ENABLE_SYS()
+// Note >> This needs to be relayed to other peers
+void ENABLE_SYS(mem)
 {
+    mem->system_state = 1;
 }
 
 // Disarms the system
-void DISABLE_SYS()
+void DISABLE_SYS(mem)
 {
+    mem->system_state = 2;
 }
 
 // Turns the alarms off
-void RESET_ALARM()
+void RESET_ALARM(mem)
 {
+    mem->system_state = 1;
 }
 
 // Trigger the alarm countdown
-void AWAIT_ALARM()
+void AWAIT_ALARM(mem)
 {
+    mem->system_state = 3;
+    // Start a countdown for 10 seconds
+    // if CHECK_PASS() > 0
+    // RESET_ALARM()
 }
 
 // Trigger the alarm
-void RAISE_ALARM()
+void RAISE_ALARM(mem)
 {
+    mem->system_state = 4;
+    // if CHECK_PASS() > 0
+    // RESET_ALARM()
 }
 
 void CHECK_PASS()
 {
+    // Compare mem->useless_information with mem2->uselessInformation
+    // If equal >> RESET_ALARM(mem)
+}
+
+void CREATE_PASS()
+{
+    // Check if pass exists
+    // if mem->useless_information
+    // return
+    // If no pass exists
+    // mem->useless_inforomation = mem2?
 }
 
 Control *ControlInit()

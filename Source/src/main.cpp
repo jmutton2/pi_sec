@@ -36,7 +36,7 @@
 #endif
 
 // DEFINE SHARED MEMORY
-
+Control *control_ptr = ControlInit();
 // -------------------
 
 // DEFINE PINS
@@ -46,34 +46,42 @@
 // SETUP
 void setup()
 {
-    //##IF DEFINED HP_DEVICE
-    // Server_Init();
+#ifdef HIGH_POWER
+    Server_Init();
+#endif
 
-    //##IF DEFINED LP_DEVICE
-    // Wifi_Init();
+#ifdef LOW_POWER
+    Wifi_Init();
+#endif
 
-    //##If DEFINED KEYPAD
+#ifdef KEYPAD
+    CREATE_PASS(control_ptr);
     // Create_Pass();
     // check for stored password, if none:
     // Note >> This needs to be relayed to other peers
+#endif
 
-    // Enable_Sys();
-    // Note >> This needs to be relayed to other peers
+    // ENABLE_SYS();
 }
 // -------------------
 
 // LOOP
 void loop()
 {
-    //##IF DEFINED HP_DEVICE
-    // HP_Device_Loop();
+#ifdef HIGH_POWER
+    HP_Device_Loop(control_ptr);
+#endif
 
-    //##IF DEFINED LP_DEVICE
+#ifdef LOW_POWER
+    Send_Alert(control_ptr);
+#endif
 
-    //##If DEFINED KEYPAD
-    // Keypad_Loop();
+#ifdef KEYPAD
+    Keypad_Loop(control_ptr);
+#endif
 
-    //##IF DEFINED DOOR_SENSOR
+#ifdef DOOR_SENSOR
     // Door_Sensor_Loop();
+#endif
 }
 // -------------------
