@@ -1,7 +1,8 @@
 #include <Arduino.h>
+#include "Control.h"
 
 // DEFINE THE DEVICE
-#define KEYPAD
+//#define KEYPAD
 //#define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
@@ -16,18 +17,22 @@
 #endif
 
 #ifdef HIGH_POWER
-#include "High_Power_Peer.h"
+#include "HP_Peer.h"
+#include "HP_Loop.h"
 #endif
 
 #ifdef LOW_POWER
-#include "Low_Power_peer.h"
+#include "LP_Peer.h"
+#include "LP_Loop.h"
 #endif
 
 #ifdef KEYPAD
 #include <Touch.h>
+#include "KP_Loop.h"
 #endif
 
 #ifdef DOOR_SENSOR
+#include "DS_Loop.h"
 
 #endif
 
@@ -47,16 +52,17 @@
 void setup()
 {
     //##IF DEFINED HP_DEVICE
-    // Start HP Server
-    // Note >> This needs to connect to other peers
+    // Server_Init();
 
     //##IF DEFINED LP_DEVICE
-    // Start LP Server
+    // Wifi_Init();
 
     //##If DEFINED KEYPAD
-    // Create Password
+    // Create_Pass();
+    // check for stored password, if none:
+    // Note >> This needs to be relayed to other peers
 
-    // Enable System
+    // Enable_Sys();
     // Note >> This needs to be relayed to other peers
 }
 // -------------------
@@ -64,58 +70,15 @@ void setup()
 // LOOP
 void loop()
 {
-
     //##IF DEFINED HP_DEVICE
-    //#STATE: ARMED
-    // Check for UNARM interrupt
-    // Check for AWAIT_ALARM interrupt
-
-    //#STATE: UNARMED
-    // Check for ARM interrupt
+    // HP_Device_Loop();
 
     //##IF DEFINED LP_DEVICE
 
     //##If DEFINED KEYPAD
-    //#STATE: AWAITING ALARM
-    // Check for password correctness
-    // FALSE => set_state to ALARM_RINGING
-    // TRUE => set_state to UNARMED
-
-    //#STATE: ALARM_RINGING
-    // Check for password correctness
-    // TRUE => set_state to UNARMED
+    // Keypad_Loop();
 
     //##IF DEFINED DOOR_SENSOR
-    // Check for DOOR_STATE_CHANGED interrupt
-    // Alert (POST) to parent
+    // Door_Sensor_Loop();
 }
 // -------------------
-
-// Arms the system
-void ENABLE_SYS()
-{
-}
-
-// Disarms the system
-void DISABLE_SYS()
-{
-}
-
-// Turns the alarms off
-void RESET_ALARM()
-{
-}
-
-// Trigger the alarm countdown
-void AWAIT_ALARM()
-{
-}
-
-// Trigger the alarm
-void RAISE_ALARM()
-{
-}
-
-void CHECK_PASS()
-{
-}

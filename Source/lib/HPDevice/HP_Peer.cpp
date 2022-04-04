@@ -1,4 +1,8 @@
 // All HP peers
+
+// Note >> This needs to connect to other peers
+// May use MAC address for wifi-less connections
+
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
 #include <stdio.h>
