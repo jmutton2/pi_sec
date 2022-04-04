@@ -1,1 +1,1 @@
-void Door_Sensor_Loop();
+void Door_Sensor_Loop(void);
