@@ -36,7 +36,7 @@
 #endif
 
 // DEFINE SHARED MEMORY
-// Control *control_ptr = (Control *)ControlInit();
+Control *control_ptr = ControlInit();
 // -------------------
 
 // DEFINE PINS
@@ -61,14 +61,14 @@ void setup()
     //  Note >> This needs to be relayed to other peers
 #endif
 
-    // ENABLE_SYS(control_ptr);
+    ENABLE_SYS(control_ptr);
 }
 // -------------------
 
 // LOOP
 void loop()
 {
-    Send_Alert();
+    // Send_Alert();
 #ifdef HIGH_POWER
     // HP_Device_Loop(control_ptr);
 #endif
