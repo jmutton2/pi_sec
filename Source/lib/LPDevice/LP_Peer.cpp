@@ -5,20 +5,20 @@
 const char *ssid = "ESP32-Access-Point";
 const char *password = "123456789";
 
-// Hard coded for now
-String serverName = "http://192.168.1.185:80/alert";
-
-char serverAddress[] = "192.168.1.185";
+char serverAddress[] = "192.168.4.1";
 int port = 80;
 
 void WiFi_Init()
 {
+    Serial.begin(115200);
+
+    Serial.print("Attempting to make connection");
     // Station mode to connect to other networks
     WiFi.mode(WIFI_STA);
 
     // Attempt to connect to ssid with pass
     WiFi.begin(ssid, password);
-    Serial.print("Connecting to wWiFi... ");
+    Serial.print("Connecting to WiFi... ");
 
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -34,19 +34,14 @@ void WiFi_Init()
 // Send the alert to the server
 void Send_Alert()
 {
-
     // Check WiFi connection status
-    if (WiFi.status() == WL_CONNECTED)
+    if (WiFi.status() == 3)
     {
 
         WiFiClient wifi;
         HttpClient client = HttpClient(wifi, serverAddress, port);
 
-        // Define content type and message
-        String contentType = "text/plain";
-        String postData = "alert from {peer}";
-
-        client.post("/alert", contentType, postData);
+        client.get("/alert");
 
         // Get response
         int statusCode = client.responseStatusCode();

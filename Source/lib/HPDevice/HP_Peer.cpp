@@ -36,7 +36,7 @@ void Server_Init()
   Serial.println(WiFi.softAPIP());
 
   // Trigger an alert
-  server.on("/alert", HTTP_POST, [](AsyncWebServerRequest *request)
+  server.on("/alert", HTTP_GET, [](AsyncWebServerRequest *request)
             {
                 request->send(200, "text/plain", "Message Received");    
                 digitalWrite(ALERT_INTERRUPT, HIGH); });

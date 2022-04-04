@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "Control.h"
-
+#include "LP_Peer.h"
 // DEFINE THE DEVICE
-//#define KEYPAD
+#define KEYPAD
 //#define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
@@ -36,7 +36,7 @@
 #endif
 
 // DEFINE SHARED MEMORY
-Control *control_ptr = (Control *)ControlInit();
+// Control *control_ptr = (Control *)ControlInit();
 // -------------------
 
 // DEFINE PINS
@@ -55,29 +55,30 @@ void setup()
 #endif
 
 #ifdef KEYPAD
-    CREATE_PASS(control_ptr);
-    // Create_Pass();
-    // check for stored password, if none:
-    // Note >> This needs to be relayed to other peers
+    // CREATE_PASS(control_ptr);
+    //  Create_Pass();
+    //  check for stored password, if none:
+    //  Note >> This needs to be relayed to other peers
 #endif
 
-    ENABLE_SYS(control_ptr);
+    // ENABLE_SYS(control_ptr);
 }
 // -------------------
 
 // LOOP
 void loop()
 {
+    Send_Alert();
 #ifdef HIGH_POWER
-    HP_Device_Loop(control_ptr);
+    // HP_Device_Loop(control_ptr);
 #endif
 
 #ifdef LOW_POWER
-    Send_Alert(control_ptr);
+    // Send_Alert(control_ptr);
 #endif
 
 #ifdef KEYPAD
-    Keypad_Loop(control_ptr);
+    // Keypad_Loop(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR

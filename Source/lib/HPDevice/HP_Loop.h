@@ -1,1 +1,1 @@
-void HP_Device_Loop(void);
+// void HP_Device_Loop(void);
