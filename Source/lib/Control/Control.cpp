@@ -26,3 +26,11 @@ void RAISE_ALARM()
 void CHECK_PASS()
 {
 }
+
+Control *ControlInit(uint16_t max_size)
+{
+    Control *temp = malloc(sizeof(Control));
+    temp->Buffer = BufferInit(PASSWORD_SIZE);
+
+    return temp;
+}
