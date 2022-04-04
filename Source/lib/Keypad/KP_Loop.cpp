@@ -1,4 +1,4 @@
-void Keypad_Loop(mem)
+void Keypad_Loop(Control mem)
 {
     // If in await alarm state, give 10 seconds to disarm
     if (mem->system_state == 3)

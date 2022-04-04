@@ -1,5 +1,5 @@
 // Note >> Mem system state will need to change based on peers
-void HP_Device_Loop(mem)
+void HP_Device_Loop(Control mem)
 {
     if (mem->system_state == 1)
     {

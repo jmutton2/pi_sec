@@ -1,24 +1,24 @@
 // Arms the system
 // Note >> This needs to be relayed to other peers
-void ENABLE_SYS(mem)
+void ENABLE_SYS(Control *mem)
 {
     mem->system_state = 1;
 }
 
 // Disarms the system
-void DISABLE_SYS(mem)
+void DISABLE_SYS(Control *mem)
 {
     mem->system_state = 2;
 }
 
 // Turns the alarms off
-void RESET_ALARM(mem)
+void RESET_ALARM(Control *mem)
 {
     mem->system_state = 1;
 }
 
 // Trigger the alarm countdown
-void AWAIT_ALARM(mem)
+void AWAIT_ALARM(Control *mem)
 {
     mem->system_state = 3;
     // Start a countdown for 10 seconds
@@ -27,7 +27,7 @@ void AWAIT_ALARM(mem)
 }
 
 // Trigger the alarm
-void RAISE_ALARM(mem)
+void RAISE_ALARM(Control *mem)
 {
     mem->system_state = 4;
     // if CHECK_PASS() > 0

@@ -8,7 +8,7 @@
 //#define AC_SENSOR
 //#define NETWORK_SENSOR
 
-#ifdef KEYPAD || NETWORK_SENSOR || AC_SENSOR || CAMERA
+#if defined KEYPAD || defined NETWORK_SENSOR || defined AC_SENSOR || defined CAMERA
 #define HIGH_POWER
 #endif
 
@@ -36,7 +36,7 @@
 #endif
 
 // DEFINE SHARED MEMORY
-Control *control_ptr = ControlInit();
+Control *control_ptr = (Control *)ControlInit();
 // -------------------
 
 // DEFINE PINS
@@ -61,7 +61,7 @@ void setup()
     // Note >> This needs to be relayed to other peers
 #endif
 
-    // ENABLE_SYS();
+    ENABLE_SYS(control_ptr);
 }
 // -------------------
 
