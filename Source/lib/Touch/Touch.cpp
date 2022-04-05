@@ -1,41 +1,25 @@
 #include "Touch.h"
 
+#define DEBUG
+
 //#define COL_1 15 // 15
-
-#define COL_1 15 // 15
-#define COL_2 16 // 16
-#define COL_3 0  // 0
-#define COL_4 4  // 4
-#define ROW_1 27 // 27
-#define ROW_2 25 // 25
-#define ROW_3 33 // 33
-#define ROW_4 32 // 32
-
-#define ENTER_KEY 17
-
-Buffer *Touchpad_Buffer = BufferInit(32);
-const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
-                                    {'/', '8', '5', '2'},
-                                    {'*', '9', '6', '3'},
-                                    {'-', '+', 'D', '0'}};
 
 void Init_Touchpad()
 {
+
     // pinMode(COL_1, OUTPUT);
 
-    REG_SET_BIT(GPIO_ENABLE_REG, COL_1);   // Define GPIO15 as output
-    REG_WRITE(GPIO_FUNC15_OUT_SEL, 0x100); // Special peripheral index value (0x100)
-    pinMode(COL_1, OUTPUT);
-    pinMode(COL_2, OUTPUT);
-    pinMode(COL_3, OUTPUT);
-    pinMode(COL_4, OUTPUT);
+    CONFIGURE_GPIO_OUT(COL_1);
+    CONFIGURE_GPIO_OUT(COL_2);
+    CONFIGURE_GPIO_OUT(COL_3);
+    CONFIGURE_GPIO_OUT(COL_4);
 
-    pinMode(ROW_1, INPUT_PULLDOWN);
-    pinMode(ROW_2, INPUT_PULLDOWN);
-    pinMode(ROW_3, INPUT_PULLDOWN);
-    pinMode(ROW_4, INPUT_PULLDOWN);
+    CONFIGURE_GPIO_IN_PD(12); // row 1 12
+    CONFIGURE_GPIO_IN_PD(14); // row 2
+    CONFIGURE_GPIO_IN_PD(27); // row 3
+    CONFIGURE_GPIO_IN_PD(26); // row 4
 
-    pinMode(ENTER_KEY, INPUT_PULLUP);
+    CONFIGURE_GPIO_IN_PU(ENTER_KEY);
 
     Serial.begin(115200);
 }
@@ -52,81 +36,55 @@ Keymask *Init_Keymask()
     return temp;
 }
 
-int debounce = 0;
-int last_base[][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 void Touchpad_Loop()
 {
+    
     // Keymask *mask = Init_Keymask();
+    static int EnterKeyDebounce = 0;
+    static uint32_t last_base[] = {0, 0, 0, 0};
+    const uint8_t columns[] = {COL_1, COL_2, COL_3, COL_4};
+    const uint8_t rows[] = {ROW_1, ROW_2, ROW_3, ROW_4};
+    uint32_t base[4];
+    static uint32_t mask = ((1 << ROW_1) + (1 << ROW_2) + (1 << ROW_3) + (1 << ROW_4));
 
-    int base[4][4];
-    int counter = 0;
-
-    // digitalWrite(COL_1, HIGH);
-    REG_SET_BIT(GPIO_OUT_W1TS_REG, BIT15);
-    base[counter][0] = digitalRead(ROW_1);
-    base[counter][1] = digitalRead(ROW_2);
-    base[counter][2] = digitalRead(ROW_3);
-    base[counter][3] = digitalRead(ROW_4);
-    REG_SET_BIT(GPIO_OUT_W1TC_REG, BIT15);
-    digitalWrite(COL_1, LOW);
-
-    counter++;
-
-    digitalWrite(COL_2, HIGH);
-    base[counter][0] = digitalRead(ROW_1);
-    base[counter][1] = digitalRead(ROW_2);
-    base[counter][2] = digitalRead(ROW_3);
-    base[counter][3] = digitalRead(ROW_4);
-    digitalWrite(COL_2, LOW);
-
-    counter++;
-
-    digitalWrite(COL_3, HIGH);
-    base[counter][0] = digitalRead(ROW_1);
-    base[counter][1] = digitalRead(ROW_2);
-    base[counter][2] = digitalRead(ROW_3);
-    base[counter][3] = digitalRead(ROW_4);
-    digitalWrite(COL_3, LOW);
-
-    counter++;
-
-    digitalWrite(COL_4, HIGH);
-    base[counter][0] = digitalRead(ROW_1);
-    base[counter][1] = digitalRead(ROW_2);
-    base[counter][2] = digitalRead(ROW_3);
-    base[counter][3] = digitalRead(ROW_4);
-    digitalWrite(COL_4, LOW);
+    for (int counter = 0; counter <= 3; counter++)
+    {
+        REG_WRITE(GPIO_OUT_W1TS_REG, 1 << columns[counter]);
+        base[counter] = mask & gpio_input_get();
+        REG_WRITE(GPIO_OUT_W1TC_REG, 1 << columns[counter]);
+    }
 
     // // columns
 
     for (int i = 0; i <= 3; i++)
     {
-        // rows
-        for (int j = 0; j <= 3; j++)
+        if (base[i] != last_base[i])
         {
-            Serial.print(base[i][j]);
-            if (base[i][j] != last_base[i][j])
+            // Serial.printf("Change detected: %d \n", base[i]);
+            last_base[i] = base[i];
+            for (int j = 0; j <= 3; j++)
             {
-                last_base[i][j] = base[i][j];
-                if (base[i][j] == HIGH)
+                if (base[i] & (1 << rows[j]))
                 {
-
-                    // Serial.println("appending");
-                    // Serial.println(Touchpad_Lookup[i][j]);
-                    Buffer_Append(Touchpad_Buffer, Touchpad_Lookup[i][j]);
+#ifdef DEBUG
+                    Serial.printf("Base[%d] compared: %d --------",i, base[i]);
+                    Serial.printf("Row mask: %d -----", (1 << rows[j]));
+                    Serial.printf("key pressed: %c -----", Touchpad_Lookup[i][j]);
+                    Serial.printf(" j and i values: %d, %d \n", j, i);
+#endif
                 }
             }
         }
     }
-    Serial.print('\n');
+
     int enter = digitalRead(ENTER_KEY);
 
-    if (LOW == enter && debounce != enter)
+    if (LOW == enter && EnterKeyDebounce != enter)
     {
         Serial.println("printing");
-        Send_Buffer(Touchpad_Buffer);
+        //Send_Buffer();
     }
-    debounce = enter;
+    EnterKeyDebounce = enter;
 }
 
 // // Not a lot of readability because this should be called on a 500Hz timer.
