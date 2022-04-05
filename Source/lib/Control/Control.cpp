@@ -39,12 +39,12 @@ void AWAIT_ALARM(Control *mem)
 // Trigger the alarm
 void RAISE_ALARM(Control *mem)
 {
-    mem->system_state == 5;
+    mem->system_state = 5;
     // if CHECK_PASS() > 0
     // RESET_ALARM() << Return to state 1 (new state)
 }
 
-void CHECK_PASS(Control * ctrl, Buffer * attemp)
+void CHECK_PASS(Control *ctrl, Buffer *attemp)
 {
     // Compare mem->useless_information with mem2->uselessInformation
     // If equal >> RESET_ALARM(mem)
@@ -76,4 +76,15 @@ Buffer *BufferInit(int max_size)
     temp->max_size = max_size;
 
     return temp;
+}
+
+void Buffer_Append(Buffer *buff, char ch)
+{
+    // protect against overflow
+    if (buff->size >= buff->max_size)
+    {
+        return;
+    }
+    buff->base[buff->size] = ch;
+    buff->size++;
 }

@@ -1,6 +1,10 @@
+#ifndef _CTRL
+#define _CTRL
+
 #define PASSWORD_SIZE 5
 
 #include <stdlib.h>
+#include <Arduino.h>
 
 typedef struct _buffer
 {
@@ -11,13 +15,15 @@ typedef struct _buffer
 
 Buffer *BufferInit(int max_size);
 
-typedef struct _Control
+typedef struct _control
 {
     int system_state;
     Buffer *buffer;
 } Control;
 
-Control *ControlInit();
+void Buffer_Append(Buffer *buff, char ch);
+
+Control *ControlInit(void);
 
 void ENABLE_SYS(Control *);
 void DISABLE_SYS(Control *);
@@ -26,3 +32,5 @@ void AWAIT_ALARM(Control *);
 void RAISE_ALARM(Control *);
 void CHECK_PASS(Control *, Buffer *);
 void CREATE_PASS(Control *);
+
+#endif
