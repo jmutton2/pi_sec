@@ -71,14 +71,13 @@ void Touchpad_Loop()
     const uint8_t rows[] = {ROW_1, ROW_2, ROW_3, ROW_4};
     uint32_t base[4];
     static uint32_t mask = ((1 << ROW_1) + (1 << ROW_2) + (1 << ROW_3) + (1 << ROW_4));
-    static int counter = 0;
+    
 
     for (int counter = 0; counter <= 3; counter++)
     {
         REG_WRITE(GPIO_OUT_W1TS_REG, 1 << columns[counter]);
+        gpio_input_get(); // Checking the registers to sink the residual charge. Problems with ghost presses otherwise.
         base[counter] = mask & gpio_input_get();
-
-
         REG_WRITE(GPIO_OUT_W1TC_REG, 1 << columns[counter]);
     
     }

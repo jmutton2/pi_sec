@@ -24,6 +24,7 @@
 
 //    REG_SET_BIT(IO_MUX_GPIO ## _n ## _REG, FUN_IE);
 #define CONFIGURE_GPIO_IN_PU(_n) ({ \
+    REG_SET_BIT(IO_MUX_GPIO ##_n## _REG, FUN_IE); \
     gpio_pad_pullup(_n);            \
 })
 
