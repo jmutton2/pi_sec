@@ -7,21 +7,46 @@
 void Init_Touchpad()
 {
 
-    // pinMode(COL_1, OUTPUT);
+  
+    // must be literals because of precompiler directives.  
+    CONFIGURE_GPIO_OUT(15); //COLUMN 1
+    CONFIGURE_GPIO_OUT(16); //COLUMN 2
+    CONFIGURE_GPIO_OUT(0);  //COLUMN 3
+    CONFIGURE_GPIO_OUT(4);  //COLUMN 3
 
-    CONFIGURE_GPIO_OUT(COL_1);
-    CONFIGURE_GPIO_OUT(COL_2);
-    CONFIGURE_GPIO_OUT(COL_3);
-    CONFIGURE_GPIO_OUT(COL_4);
+    gpio_pad_pulldown(0);
 
-    CONFIGURE_GPIO_IN_PD(12); // row 1 12
+    CONFIGURE_GPIO_IN_PD(12); // row 1 
     CONFIGURE_GPIO_IN_PD(14); // row 2
     CONFIGURE_GPIO_IN_PD(27); // row 3
     CONFIGURE_GPIO_IN_PD(26); // row 4
 
-    CONFIGURE_GPIO_IN_PU(ENTER_KEY);
+    
+
+    CONFIGURE_GPIO_IN_PU(17); // ENTER KEY
 
     Serial.begin(115200);
+
+    //Register 4 0b 10 10 1 0 1 00 00000
+    //Register 0 0b 10 10 1 1 0 00 00000
+    // Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(IO_MUX_GPIO4_REG));
+    // Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
+    // Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(IO_MUX_GPIO15_REG));
+    // Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
+
+    // Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_PIN4_REG));
+    // Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_PIN0_REG));
+    // Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_PIN15_REG));
+    // Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_PIN16_REG));
+
+    // Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_FUNC4_OUT_SEL_CFG_REG));
+    // Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_FUNC0_OUT_SEL_CFG_REG));
+    // Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_FUNC15_OUT_SEL_CFG_REG));
+    // Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_FUNC16_OUT_SEL_CFG_REG));
+
+    
+
+    
 }
 
 void Send_Buffer(Buffer *buff)
@@ -46,13 +71,22 @@ void Touchpad_Loop()
     const uint8_t rows[] = {ROW_1, ROW_2, ROW_3, ROW_4};
     uint32_t base[4];
     static uint32_t mask = ((1 << ROW_1) + (1 << ROW_2) + (1 << ROW_3) + (1 << ROW_4));
+    static int counter = 0;
 
     for (int counter = 0; counter <= 3; counter++)
     {
         REG_WRITE(GPIO_OUT_W1TS_REG, 1 << columns[counter]);
         base[counter] = mask & gpio_input_get();
+
+
         REG_WRITE(GPIO_OUT_W1TC_REG, 1 << columns[counter]);
+    
     }
+    // counter++;
+    // if(counter >3)
+    // {
+    //     counter = 0;
+    // }
 
     // // columns
 
