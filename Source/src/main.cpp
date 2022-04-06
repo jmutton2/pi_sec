@@ -3,12 +3,12 @@
 #include "LP_Peer.h"
 
 // DEFINE THE DEVICE
-// #define KEYPAD
+#define KEYPAD
 //#define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
 //#define NETWORK_SENSOR
-#define DEBUG
+//#define DEBUG
 
 #if defined KEYPAD || defined NETWORK_SENSOR || defined AC_SENSOR || defined CAMERA
 #define HIGH_POWER
@@ -91,14 +91,14 @@ void loop()
 #ifndef DEBUG
 
 #ifdef HIGH_POWER
-    HP_Device_Loop(control_ptr);
+    //HP_Device_Loop(control_ptr);
 #endif
 
 #ifdef LOW_POWER
 #endif
 
 #ifdef KEYPAD
-    Keypad_Loop(control_ptr);
+    //Keypad_Loop(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR
