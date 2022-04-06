@@ -3,6 +3,8 @@
 // Note >> This needs to connect to other peers
 // May use MAC address for wifi-less connections
 
+#define ALERT_INTERRUPT 27
+
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
 #include <stdio.h>
@@ -12,12 +14,6 @@ const char *password = "123456789";
 
 AsyncWebServer server(80);
 
-const int ALERT_INTERRUPT = 27;
-
-// Set permanent IP address << Until we discover method to connect dynamically and make requests
-IPAddress local_IP(192, 168, 1, 185);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 0, 0);
 
 void Server_Init()
 {
