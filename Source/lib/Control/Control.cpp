@@ -62,12 +62,12 @@ void CREATE_PASS()
 Control *ControlInit()
 {
     Control *temp = (Control *)malloc(sizeof(Control));
-    temp->buffer = BufferInit(PASSWORD_SIZE);
+    temp->buffer = Buffer_Init(PASSWORD_SIZE);
 
     return temp;
 }
 
-Buffer *BufferInit(int max_size)
+Buffer *Buffer_Init(int max_size)
 {
     Buffer *temp = (Buffer *)malloc(sizeof(Buffer));
 
@@ -78,13 +78,34 @@ Buffer *BufferInit(int max_size)
     return temp;
 }
 
-void Buffer_Append(Buffer *buff, char ch)
+void Buffer_Append(Buffer *buff, const char ch)
 {
     // protect against overflow
-    if (buff->size >= buff->max_size)
+    if (buff->size >= 1 - buff->max_size)
     {
         return;
     }
-    buff->base[buff->size] = ch;
+    buff->base[buff->size] = (char )ch;
+    buff->base[(buff->size) + 1] = '\0';
     buff->size++;
+}
+
+int Buffer_Compare(Buffer *buff1, Buffer *buff2)
+{
+    return strcmp(buff1->base, buff2->base);
+}
+
+Buffer *Buffer_Clear(Buffer *buff)
+{
+    buff->base = '\0';
+    buff->size = 0;
+    return buff;
+}
+
+std::string Buffer_To_String(Buffer *buff)
+{
+    std::string temp;
+    temp.append(buff->base);
+
+    return temp;
 }

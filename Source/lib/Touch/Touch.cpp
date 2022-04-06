@@ -3,9 +3,13 @@
 //#define DEBUG
 
 //#define COL_1 15 // 15
+TaskHandle_t Task0;
+TaskHandle_t Task1;
+QueueHandle_t keypad_queue_handle;
 
 void Init_Touchpad()
 {
+    keypad_queue_handle = xQueueCreate(64, sizeof(char));
 
     // must be literals because of precompiler directives.
     CONFIGURE_GPIO_OUT(15); // COLUMN 1
@@ -13,7 +17,7 @@ void Init_Touchpad()
     CONFIGURE_GPIO_OUT(0);  // COLUMN 3
     CONFIGURE_GPIO_OUT(4);  // COLUMN 3
 
-    gpio_pad_pulldown(0);
+
 
     CONFIGURE_GPIO_IN_PD(12); // row 1
     CONFIGURE_GPIO_IN_PD(14); // row 2
@@ -59,7 +63,6 @@ Keymask *Init_Keymask()
 void Touchpad_Loop()
 {
 
-    // Keymask *mask = Init_Keymask();
     static int EnterKeyDebounce = 0;
     static uint32_t last_base[] = {0, 0, 0, 0};
     const uint8_t columns[] = {COL_1, COL_2, COL_3, COL_4};
@@ -85,6 +88,10 @@ void Touchpad_Loop()
             {
                 if (base[i] & (1 << rows[j]))
                 {
+                    char key_pressed = Touchpad_Lookup[i][j];
+                    xQueueSend(keypad_queue_handle, &key_pressed , portMAX_DELAY);
+                    // Buffer_Append(pass_buff, Touchpad_Lookup[i][j]);
+                    Serial.printf("key pressed: %c \n", Touchpad_Lookup[i][j]);
 #ifdef DEBUG
                     Serial.printf("Base[%d] compared: %d --------", i, base[i]);
                     Serial.printf("Row mask: %d -----", (1 << rows[j]));
@@ -102,8 +109,15 @@ void Touchpad_Loop()
 
     if (LOW == enter && EnterKeyDebounce != enter)
     {
+        char key_printing;
         Serial.println("printing");
-        // Send_Buffer();
+        while(pdTRUE == xQueueReceive(keypad_queue_handle, &key_printing, ((TickType_t)10) ) )
+        {
+            Serial.print(key_printing);
+        }
+        Serial.print('\n');
+        // pass_buff = Buffer_Clear(pass_buff);
+        //  Send_Buffer();
     }
     EnterKeyDebounce = enter;
 }
