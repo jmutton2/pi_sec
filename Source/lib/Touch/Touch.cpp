@@ -1,6 +1,6 @@
 #include "Touch.h"
 
-#define DEBUG
+//#define DEBUG
 
 //#define COL_1 15 // 15
 
@@ -24,22 +24,24 @@ void Init_Touchpad()
 
     Serial.begin(115200);
 
-    // Register 4 0b 10 10 1 0 1 00 00000
-    // Register 0 0b 10 10 1 1 0 00 00000
-    //  Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(IO_MUX_GPIO4_REG));
-    //  Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
-    //  Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(IO_MUX_GPIO15_REG));
-    //  Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
+#ifdef DEBUG
 
-    // Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_PIN4_REG));
-    // Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_PIN0_REG));
-    // Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_PIN15_REG));
-    // Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_PIN16_REG));
+    Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(IO_MUX_GPIO4_REG));
+    Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
+    Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(IO_MUX_GPIO15_REG));
+    Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(IO_MUX_GPIO0_REG));
 
-    // Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_FUNC4_OUT_SEL_CFG_REG));
-    // Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_FUNC0_OUT_SEL_CFG_REG));
-    // Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_FUNC15_OUT_SEL_CFG_REG));
-    // Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_FUNC16_OUT_SEL_CFG_REG));
+    Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_PIN4_REG));
+    Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_PIN0_REG));
+    Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_PIN15_REG));
+    Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_PIN16_REG));
+
+    Serial.printf("\nRegister for GPIO 4: %d \n", GPIO_REG_READ(GPIO_FUNC4_OUT_SEL_CFG_REG));
+    Serial.printf("Register for GPIO 0: %d \n", GPIO_REG_READ(GPIO_FUNC0_OUT_SEL_CFG_REG));
+    Serial.printf("Register for GPIO 15: %d \n", GPIO_REG_READ(GPIO_FUNC15_OUT_SEL_CFG_REG));
+    Serial.printf("Register for GPIO 16: %d \n", GPIO_REG_READ(GPIO_FUNC16_OUT_SEL_CFG_REG));
+
+#endif
 }
 
 void Send_Buffer(Buffer *buff)
@@ -72,13 +74,6 @@ void Touchpad_Loop()
         base[counter] = mask & gpio_input_get();
         REG_WRITE(GPIO_OUT_W1TC_REG, 1 << columns[counter]);
     }
-    // counter++;
-    // if(counter >3)
-    // {
-    //     counter = 0;
-    // }
-
-    // // columns
 
     for (int i = 0; i <= 3; i++)
     {
@@ -91,9 +86,9 @@ void Touchpad_Loop()
                 if (base[i] & (1 << rows[j]))
                 {
 #ifdef DEBUG
-                    // Serial.printf("Base[%d] compared: %d --------",i, base[i]);
-                    // Serial.printf("Row mask: %d -----", (1 << rows[j]));
-                    // Serial.printf(" j and i values: %d, %d \n", j, i);
+                    Serial.printf("Base[%d] compared: %d --------", i, base[i]);
+                    Serial.printf("Row mask: %d -----", (1 << rows[j]));
+                    Serial.printf(" j and i values: %d, %d \n", j, i);
 
                     Serial.printf("key pressed: %c \n", Touchpad_Lookup[i][j]);
 
@@ -112,46 +107,3 @@ void Touchpad_Loop()
     }
     EnterKeyDebounce = enter;
 }
-
-// // Not a lot of readability because this should be called on a 500Hz timer.
-// void Poll_Touchpad(Keymask *mask)
-// {
-
-//     // return mask;
-//     int counter = 0;
-//     // mask->base = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
-
-//     digitalWrite(COL_1, HIGH);
-//     mask->base[counter][0] = digitalRead(ROW_1);
-//     mask->base[counter][1] = digitalRead(ROW_2);
-//     mask->base[counter][2] = digitalRead(ROW_3);
-//     mask->base[counter][3] = digitalRead(ROW_4);
-//     digitalWrite(COL_1, LOW);
-
-//     counter++;
-
-//     digitalWrite(COL_2, HIGH);
-//     mask->base[counter][0] = digitalRead(ROW_1);
-//     mask->base[counter][1] = digitalRead(ROW_2);
-//     mask->base[counter][2] = digitalRead(ROW_3);
-//     mask->base[counter][3] = digitalRead(ROW_4);
-//     digitalWrite(COL_2, LOW);
-
-//     counter++;
-
-//     digitalWrite(COL_3, HIGH);
-//     mask->base[counter][0] = digitalRead(ROW_1);
-//     mask->base[counter][1] = digitalRead(ROW_2);
-//     mask->base[counter][2] = digitalRead(ROW_3);
-//     mask->base[counter][3] = digitalRead(ROW_4);
-//     digitalWrite(COL_3, LOW);
-
-//     counter++;
-
-//     digitalWrite(COL_4, HIGH);
-//     mask->base[counter][0] = digitalRead(ROW_1);
-//     mask->base[counter][1] = digitalRead(ROW_2);
-//     mask->base[counter][2] = digitalRead(ROW_3);
-//     mask->base[counter][3] = digitalRead(ROW_4);
-//     digitalWrite(COL_4, LOW);
-// }
