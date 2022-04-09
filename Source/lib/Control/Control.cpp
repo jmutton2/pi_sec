@@ -44,20 +44,27 @@ void RAISE_ALARM(Control *mem)
     // RESET_ALARM() << Return to state 1 (new state)
 }
 
-void CHECK_PASS(Control *ctrl, Buffer *attemp)
+int CHECK_PASS(std::string st)
 {
+    static std::string pass = st;// first time you call this function, set pass
+
+    if(pass.compare(st) == 0)
+    {
+        return 1;
+    }
+    else return 0;
     // Compare mem->useless_information with mem2->uselessInformation
     // If equal >> RESET_ALARM(mem)
 }
 
-void CREATE_PASS()
-{
-    // Check if pass exists
-    // if mem->useless_information
-    // return
-    // If no pass exists
-    // mem->useless_inforomation = mem2?
-}
+// void CREATE_PASS()
+// {
+//     // Check if pass exists
+//     // if mem->useless_information
+//     // return
+//     // If no pass exists
+//     // mem->useless_inforomation = mem2?
+// }
 
 Control *ControlInit()
 {

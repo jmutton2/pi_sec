@@ -14,6 +14,7 @@ QueueHandle_t keypad_queue_handle;
 void Init_Touchpad()
 {
     keypad_queue_handle = xQueueCreate(64, sizeof(char));
+    pushed_input_handle = xQueueCreate(64, sizeof(char));
     touch_event_bits = xEventGroupCreate();
     // must be literals because of precompiler directives.
     CONFIGURE_GPIO_OUT(15); // COLUMN 1
@@ -138,16 +139,43 @@ void Touchpad_Loop()
 
 ///////////////////////////////////////////////////////////Control Code Begins
 
+
 void Create_Password(void *parameter)
 {
     xEventGroupWaitBits(touch_event_bits, BIT0, 1, 0, portMAX_DELAY);
 
     char key_read;
+    std::string temp;
     while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
     {
-        //NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
-        //alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
-        //spiGeMode 
+        temp = temp + key_read;
+        // NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
+        // alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
+        // spiGeMode
+    }
+    CHECK_PASS(temp);
+
+    xEventGroupWaitBits(touch_event_bits, BIT0, 1, 0, portMAX_DELAY);
+
+    std::string temp2;
+    while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
+    {
+        temp2 = temp2 + key_read;
+        // NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
+        // alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
+        // spiGeMode
+    }
+    if (CHECK_PASS(temp2))
+    {
+        Serial.println("Password OK!");
+        // Password OK!
+        vTaskDelete(NULL);
+    }
+    else
+    {
+        Serial.println("Password NOT OK! Restarting......");
+        // you fucked up
+        ESP.restart();
     }
 }
 

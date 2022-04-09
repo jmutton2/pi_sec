@@ -34,7 +34,7 @@ void DISABLE_SYS(Control *);
 void RESET_ALARM(Control *);
 void AWAIT_ALARM(Control *);
 void RAISE_ALARM(Control *);
-void CHECK_PASS(Control *, Buffer *);
+int CHECK_PASS(std::string st);
 void CREATE_PASS(Control *);
 
 #endif

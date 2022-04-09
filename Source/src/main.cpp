@@ -59,7 +59,7 @@ void setup()
 #ifndef DEBUG
 
 #ifdef HIGH_POWER
-    Server_Init();
+    //Server_Init();
 #endif
 
 #ifdef LOW_POWER
@@ -81,6 +81,8 @@ void setup()
 // LOOP
 void loop()
 {
+    delay(10);
+    Touchpad_Loop();
 
 #ifdef DEBUG
     delay(10);
