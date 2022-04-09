@@ -1,3 +1,1 @@
-// #include "LP_Peer.h"
-
-// void Door_Sensor_Loop(void);
+void Door_Sensor_Loop(void);
