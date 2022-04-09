@@ -2,13 +2,10 @@
 
 TaskHandle_t makePass;
 QueueHandle_t pushed_input_handle;
-  /* Declare a variable to hold the created event group. */
+/* Declare a variable to hold the created event group. */
 EventGroupHandle_t touch_event_bits;
 
-
-
 //#define DEBUG
-
 
 TaskHandle_t Task0;
 TaskHandle_t Task1;
@@ -23,8 +20,6 @@ void Init_Touchpad()
     CONFIGURE_GPIO_OUT(16); // COLUMN 2
     CONFIGURE_GPIO_OUT(0);  // COLUMN 3
     CONFIGURE_GPIO_OUT(4);  // COLUMN 3
-
-
 
     CONFIGURE_GPIO_IN_PD(12); // row 1
     CONFIGURE_GPIO_IN_PD(14); // row 2
@@ -69,7 +64,6 @@ Keymask *Init_Keymask()
 
 void Push_Keypad_Output()
 {
-
 }
 
 void Touchpad_Loop()
@@ -101,7 +95,7 @@ void Touchpad_Loop()
                 if (base[i] & (1 << rows[j]))
                 {
                     char key_pressed = Touchpad_Lookup[i][j];
-                    xQueueSend(keypad_queue_handle, &key_pressed , portMAX_DELAY);
+                    xQueueSend(keypad_queue_handle, &key_pressed, portMAX_DELAY);
                     // Buffer_Append(pass_buff, Touchpad_Lookup[i][j]);
                     Serial.printf("key pressed: %c \n", Touchpad_Lookup[i][j]);
 #ifdef DEBUG
@@ -123,50 +117,52 @@ void Touchpad_Loop()
     {
         char key_printing;
         Serial.println("printing");
-        while(pdTRUE == xQueueReceive(keypad_queue_handle, &key_printing, ((TickType_t)10) ) )
+        while (pdTRUE == xQueueReceive(keypad_queue_handle, &key_printing, ((TickType_t)10)))
         {
-            //TODO 
-            //Make task that pushes keypad queue to pushed input queue
-            // When the enter key gets pressed, it will try to take a semaphore to push
-            // It will write to a pushed buffer or queue (which one?)
-            //then will release semaphore
+
+            xQueueSend(pushed_input_handle, &key_printing, ((TickType_t)1000));
+            // TODO
+            // Make task that pushes keypad queue to pushed input queue
+            //  When the enter key gets pressed, it will try to take a semaphore to push
+            //  It will write to a pushed buffer or queue (which one?)
+            // then will release semaphore
             Serial.print(key_printing);
         }
         Serial.print('\n');
+        xEventGroupSetBits(touch_event_bits, BIT0);
         // pass_buff = Buffer_Clear(pass_buff);
         //  Send_Buffer();
     }
     EnterKeyDebounce = enter;
 }
 
-
 ///////////////////////////////////////////////////////////Control Code Begins
 
-void Create_Password(void * parameter)
+void Create_Password(void *parameter)
 {
-    xEventGroupWaitBits(touch_event_bits, 0b1, 1, 0, portMAX_DELAY);
+    xEventGroupWaitBits(touch_event_bits, BIT0, 1, 0, portMAX_DELAY);
 
     char key_read;
-    while(pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t) 50))
+    while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
     {
-
+        //NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
+        //alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
+        //spiGeMode 
     }
 }
-
-
 
 void Keypad_Init(Control *mem)
 {
     Init_Touchpad();
 
     xTaskCreatePinnedToCore(
-			Create_Password, /* Function to implement the task */
-			"Create Password", /* Name of the task */
-			1000, /* Stack size in words */
-			NULL, /* Task input parameter */
-			0, /* Priority of the task */
-			&makePass, /* Task handle. */
-			1); /* Core where the task should run */
+        Create_Password,   /* Function to implement the task */
+        "Create Password", /* Name of the task */
+        1000,              /* Stack size in words */
+        NULL,              /* Task input parameter */
+        0,                 /* Priority of the task */
+        &makePass,         /* Task handle. */
+        1);                /* Core where the task should run */
 
     // CREATE_PASS(control_ptr);
     //  Create_Pass();
