@@ -71,7 +71,7 @@ void setup()
 #endif
 
 #ifdef DOOR_SENSOR
-
+    Door_Sensor_Loop();
 #endif
 
 #endif
@@ -84,7 +84,7 @@ void loop()
 
 #ifdef DEBUG
     delay(10);
-    
+
     Touchpad_Loop();
 #endif
 
@@ -102,7 +102,7 @@ void loop()
 #endif
 
 #ifdef DOOR_SENSOR
-    Door_Sensor_Loop();
+    Door_Sensor_Loop(control_ptr);
 #endif
 
 #endif

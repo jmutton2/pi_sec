@@ -1,1 +1,3 @@
-void Door_Sensor_Loop(void);
+#include "Control.h"
+
+void Door_Sensor_Loop(Control *);
