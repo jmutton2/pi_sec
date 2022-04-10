@@ -29,3 +29,12 @@ void loop()
     vTaskDelete(NULL);
 }
 // -------------------
+
+// DEFINE INTERRUPTS HANDLERS
+
+void AWAIT_ALARM_INTERRUPT()
+{
+    AWAIT_ALARM(control_ptr);
+}
+
+// -------------------
