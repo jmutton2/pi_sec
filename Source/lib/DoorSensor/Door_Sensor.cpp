@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include "LP_Peer.h"
+#include "Control.h"
 
 // Associated with touch pin 4
-#define touchGPIO 13
+#define touchGPIO 4
 
-void Door_Sensor_Loop(Control *mem)
+void Door_Sensor_Loop()
 {
     // Check for DOOR_STATE_CHANGED interrupt
-    if (touchRead(touchGPIO) > 50 && mem->system_state != 4 && mem->system_state != 5)
+    if (touchRead(touchGPIO) > 50)
     {
         Send_Alert();
-        AWAIT_ALARM(mem);
     }
 }

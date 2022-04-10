@@ -3,12 +3,12 @@
 #include "LP_Peer.h"
 
 // DEFINE THE DEVICE
-// #define KEYPAD
-//#define DOOR_SENSOR
+#define KEYPAD
+// #define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
 //#define NETWORK_SENSOR
-#define DEBUG
+// #define DEBUG
 
 #if defined KEYPAD || defined NETWORK_SENSOR || defined AC_SENSOR || defined CAMERA
 #define HIGH_POWER
@@ -45,6 +45,10 @@ Control *control_ptr = ControlInit();
 
 // DEFINE PINS
 
+void AWAIT_ALARMTEMP()
+{
+    AWAIT_ALARM(control_ptr);
+}
 // -------------------
 
 // SETUP
@@ -63,15 +67,14 @@ void setup()
 #endif
 
 #ifdef LOW_POWER
-    // Wifi_Init();
+    WiFi_Init();
 #endif
 
 #ifdef KEYPAD
-    Keypad_Init(control_ptr);
+    // Keypad_Init(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR
-    Door_Sensor_Loop();
 #endif
 
 #endif
@@ -82,6 +85,9 @@ void setup()
 void loop()
 {
 
+    attachInterrupt(27, AWAIT_ALARMTEMP, RISING);
+    Serial.print(control_ptr->system_state);
+    delay(1000);
 #ifdef DEBUG
     delay(10);
 
@@ -91,18 +97,18 @@ void loop()
 #ifndef DEBUG
 
 #ifdef HIGH_POWER
-    HP_Device_Loop(control_ptr);
+    // HP_Device_Loop(control_ptr);
 #endif
 
 #ifdef LOW_POWER
 #endif
 
 #ifdef KEYPAD
-    Keypad_Loop(control_ptr);
+    // Keypad_Loop(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR
-    Door_Sensor_Loop(control_ptr);
+    Door_Sensor_Loop();
 #endif
 
 #endif
