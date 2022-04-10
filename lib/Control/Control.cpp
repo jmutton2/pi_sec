@@ -297,6 +297,7 @@ void ARM_SYS(void *pvParameters)
 #endif
     std::string in;
     EventBits_t ret;
+    in = "";
     for (;;)
     {
 
@@ -342,7 +343,7 @@ void ARM_SYS(void *pvParameters)
 #ifdef DEBUG
                     Serial.println("Password OK! Disarming");
 #endif
-                    vTaskResume(awaitArm);
+                    vTaskResume(awaitArm); // BUG HERE, it says password ok but then reboots
                     vTaskSuspend(NULL);
                 }
 #ifdef DEBUG
@@ -489,7 +490,7 @@ void Create_Password(void *pvParameters)
             &awaitArm,          /* Task handle. */
             1);                 /* Core where the task should run */
 
-        vTaskDelete(NULL);
+        vTaskDelete(NULL); // This might be the bug, does it delete await arm? it shouldnt
     }
     else
     {
