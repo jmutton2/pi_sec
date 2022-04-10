@@ -36,7 +36,7 @@
 
 #ifdef KEYPAD
 // #include "Touch.h"
-#include "Keypad.h"
+//#include "Keypad.h"
 #endif
 
 #ifdef DOOR_SENSOR

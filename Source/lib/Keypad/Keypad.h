@@ -3,26 +3,12 @@
 
 #ifndef test
 #define test
-#include "Definitions.h"
+//#include "Definitions.h"
 #endif
 
 #include <Arduino.h>
-
-TaskHandle_t makePass;
-QueueHandle_t pushed_input_handle;
-/* Declare a variable to hold the created event group. */
-EventGroupHandle_t touch_event_bits;
-
-//#define DEBUG
-
-TaskHandle_t Task0;
-TaskHandle_t Task1;
-QueueHandle_t keypad_queue_handle;
-
 #include <stdio.h>
-//#include "Control.h"
 #include <string.h>
-
 
 #define CONFIGURE_GPIO_OUT(_n) ({             \
     gpio_matrix_out(_n, 0x100, false, false); \
@@ -63,8 +49,6 @@ const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
                                     {'*', '9', '6', '3'},
                                     {'-', '+', 'D', '0'}};
 
-
-
 int CHECK_PASS(std::string);
 void Init_Touchpad();
 void Touchpad_Loop(void *);
@@ -72,7 +56,7 @@ void Create_Password(void *);
 
 void Keypad_Init(void);
 
-TaskHandle_t touchpadLoop;
+
 
 #endif
 
