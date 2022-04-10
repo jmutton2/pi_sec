@@ -6,8 +6,8 @@
 #define ALARM_TIMEOUT BIT2
 
 // DEFINE THE DEVICE
-#define KEYPAD
-//#define DOOR_SENSOR
+// #define KEYPAD
+#define DOOR_SENSOR
 //#define CAMERA
 //#define AC_SENSOR
 //#define NETWORK_SENSOR

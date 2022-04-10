@@ -6,11 +6,13 @@
 
 void Door_Sensor_Loop()
 {
-    // Check for DOOR_STATE_CHANGED interrupt
-    if (touchRead(touchGPIO) > 50)
+    for (;;)
     {
-        Send_Alert();
-        delay(500);
-        digitalWrite(2, LOW);
+        // Check for DOOR_STATE_CHANGED interrupt
+        if (touchRead(touchGPIO) > 50)
+        {
+            Send_Alert();
+            delay(500);
+        }
     }
 }

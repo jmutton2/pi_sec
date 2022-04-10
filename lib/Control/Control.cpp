@@ -186,19 +186,6 @@ int CHECK_PASS(std::string st)
 {
     pass = st; // first time you call this function, set pass
 
-    for (int i = 0; i < pass.length(); i++)
-    {
-
-        Serial.print(pass[i]);
-        Serial.println("pass");
-    }
-    for (int i = 0; i < st.length(); i++)
-    {
-
-        Serial.print(st[i]);
-        Serial.println("st");
-    }
-
     if (pass.compare(st) == 0)
     {
         return 1;
@@ -302,6 +289,7 @@ void ALARM_SIGNAL_TRIGGER_ISR()
 void ARM_SYS(void *pvParameters)
 {
     digitalWrite(19, LOW);
+    // RESET ENTER KEY AND ALARM SIGNAL << becuase we suspend tasks instead of destroy adn create
 
     attachInterrupt(19, ALARM_SIGNAL_TRIGGER_ISR, RISING);
 #ifdef DEBUG

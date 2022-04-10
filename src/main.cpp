@@ -6,12 +6,11 @@ void setup()
 {
 
 #ifdef DEBUG
-    //Init_Touchpad();
+    // Init_Touchpad();
 #endif
 
 #ifndef DEBUG
 
-    // control_bits = xEventGroupCreate();
 #ifdef KEYPAD
     Init_Touchpad();
     Init_Control();
@@ -19,6 +18,7 @@ void setup()
 #endif
 
 #ifdef DOOR_SENSOR
+    WiFi_Init();
     Door_Sensor_Loop();
 #endif
 
