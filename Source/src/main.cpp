@@ -85,7 +85,7 @@ void setup()
 void loop()
 {
 
-    attachInterrupt(27, AWAIT_ALARMTEMP, RISING);
+    attachInterrupt(2, AWAIT_ALARMTEMP, RISING);
     Serial.print(control_ptr->system_state);
     delay(1000);
 #ifdef DEBUG

@@ -3,7 +3,7 @@
 // Note >> This needs to connect to other peers
 // May use MAC address for wifi-less connections
 
-#define ALERT_INTERRUPT 27
+#define ALERT_INTERRUPT 2
 
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
@@ -34,7 +34,7 @@ void Server_Init()
   server.on("/alert", HTTP_GET, [](AsyncWebServerRequest *request)
             {
                 request->send(200, "text/plain", "Message Received");    
-                digitalWrite(27, HIGH); });
+                digitalWrite(2, HIGH); });
 
   server.begin();
 }
