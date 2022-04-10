@@ -1,18 +1,28 @@
 #ifndef _KEYPAD
-
 #define _KEYPAD
 
-
+#ifndef test
+#define test
+#include "Definitions.h"
+#endif
 
 #include <Arduino.h>
 
+TaskHandle_t makePass;
+QueueHandle_t pushed_input_handle;
+/* Declare a variable to hold the created event group. */
+EventGroupHandle_t touch_event_bits;
 
+//#define DEBUG
 
-#include <stdlib.h>
+TaskHandle_t Task0;
+TaskHandle_t Task1;
+QueueHandle_t keypad_queue_handle;
+
 #include <stdio.h>
-#include "Control.h"
-#include <stdio.h>
+//#include "Control.h"
 #include <string.h>
+
 
 #define CONFIGURE_GPIO_OUT(_n) ({             \
     gpio_matrix_out(_n, 0x100, false, false); \
@@ -29,14 +39,13 @@
 })
 
 //    REG_SET_BIT(IO_MUX_GPIO ## _n ## _REG, FUN_IE);
-#define CONFIGURE_GPIO_IN_PU(_n) ({ \
-    REG_SET_BIT(IO_MUX_GPIO ##_n## _REG, FUN_IE); \
-    gpio_pad_pullup(_n);            \
+#define CONFIGURE_GPIO_IN_PU(_n) ({             \
+    REG_SET_BIT(IO_MUX_GPIO##_n##_REG, FUN_IE); \
+    gpio_pad_pullup(_n);                        \
 })
 
-
-//*********VERY IMPORTANT********** 
-//IF CHANGING, YOU MUST ALSO CHANGE THE VALUES IN TOUCH_INIT()
+//*********VERY IMPORTANT**********
+// IF CHANGING, YOU MUST ALSO CHANGE THE VALUES IN TOUCH_INIT()
 #define COL_1 15 // 15
 #define COL_2 16 // 16
 #define COL_3 0  // 0
@@ -46,7 +55,7 @@
 #define ROW_3 27 // 27
 #define ROW_4 26 // 26
 
-#define ENTER_KEY 17 // 17
+#define ENTER_KEY_GPIO 17 // 17
 
 // Buffer *Touchpad_Buffer = BufferInit(32);
 const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
@@ -54,18 +63,18 @@ const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
                                     {'*', '9', '6', '3'},
                                     {'-', '+', 'D', '0'}};
 
-typedef struct _keymask
-{
-    uint32_t base[4];
-} Keymask;
 
+
+int CHECK_PASS(std::string);
 void Init_Touchpad();
-void Send_Buffer(Buffer *buff);
-void Touchpad_Loop();
+void Touchpad_Loop(void *);
+void Create_Password(void *);
 
-void Keypad_Init(Control *mem);
+void Keypad_Init(void);
+
+TaskHandle_t touchpadLoop;
 
 #endif
 
-// void Keypad_Init(Control *);
-// void Keypad_Loop(Control *);
+// void Keypad_Init(void );
+// void Keypad_Loop(void );

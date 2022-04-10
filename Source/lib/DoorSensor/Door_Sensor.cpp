@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "LP_Peer.h"
-#include "Control.h"
+
 
 // Associated with touch pin 4
 #define touchGPIO 4

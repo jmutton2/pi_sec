@@ -3,38 +3,29 @@
 
 #define PASSWORD_SIZE 5
 
-#include <stdlib.h>
 #include <Arduino.h>
+#include <stdlib.h>
+#include "Definitions.h"
+#include "Keypad.h"
 
 
+EventGroupHandle_t control_bits;
 
-typedef struct _buffer
-{
-    char *base;
-    int size;
-    int max_size;
-} Buffer;
+TaskHandle_t armSys;
+TaskHandle_t awaitArm;
+TaskHandle_t awaitAlarm;
+TaskHandle_t raiseAlarm;
 
-typedef struct _control
-{
-    int system_state;
-    Buffer *buffer;
-} Control;
+TimerHandle_t alarmTimer;
+StaticTimer_t alarmTimerBuffer;
+int alarmTimerID = 1;
 
-Buffer *Buffer_Init(int max_size);
-void Buffer_Append(Buffer *buff, const char ch);
-int Buffer_Compare(Buffer *buff1, Buffer *buff2);
-Buffer *Buffer_Clear(Buffer *buff);
-std::string Buffer_To_String(Buffer *buff);
-
-Control *ControlInit(void);
-
-void ENABLE_SYS(Control *);
-void DISABLE_SYS(Control *);
-void RESET_ALARM(Control *);
-void AWAIT_ALARM(Control *);
-void RAISE_ALARM(Control *);
-int CHECK_PASS(std::string st);
-void CREATE_PASS(Control *);
+void ARM_SYS(void *);
+std::string GET_INPUT(void);
+void AWAIT_ARM(void *);
+void ALARM_TIMER_TIMEOUT(void *);
+void AWAIT_ALARM(void *);
+void RAISE_ALARM(void *);
+void Init_Control();
 
 #endif

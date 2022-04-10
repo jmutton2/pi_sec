@@ -1,119 +1,287 @@
 #include "Control.h"
 
-// Waiting to be armed
-void AWAIT_ARM(Control *mem)
-{
-    mem->system_state = 1;
-}
-
-// Arms the system
-// Note >> This needs to be relayed to other peers
-void ENABLE_SYS(Control *mem)
-{
-    mem->system_state = 2;
-}
-
-// Disarms the system
-void DISABLE_SYS(Control *mem)
-{
-    mem->system_state = 3;
-}
-
-// Turns the alarms off
-void RESET_ALARM(Control *mem)
-{
-    mem->system_state = 2;
-}
-
-// Trigger the alarm countdown
-void AWAIT_ALARM(Control *mem)
-{
-    mem->system_state = 4;
-    // Start a countdown for 10 seconds
-    // if CHECK_PASS() > 0
-    // RESET_ALARM()
-    // else
-    // RAISE_ALARM()
-}
-
-// Trigger the alarm
-void RAISE_ALARM(Control *mem)
-{
-    mem->system_state = 5;
-    // if CHECK_PASS() > 0
-    // RESET_ALARM() << Return to state 1 (new state)
-}
+#define DEBUG
 
 int CHECK_PASS(std::string st)
 {
-    static std::string pass = st;// first time you call this function, set pass
+    static std::string pass = st; // first time you call this function, set pass
 
-    if(pass.compare(st) == 0)
+    if (pass.compare(st) == 0)
     {
         return 1;
     }
-    else return 0;
+    else
+        return 0;
     // Compare mem->useless_information with mem2->uselessInformation
     // If equal >> RESET_ALARM(mem)
 }
 
-// void CREATE_PASS()
-// {
-//     // Check if pass exists
-//     // if mem->useless_information
-//     // return
-//     // If no pass exists
-//     // mem->useless_inforomation = mem2?
-// }
-
-Control *ControlInit()
+// Reads input from user
+std::string GET_INPUT()
 {
-    Control *temp = (Control *)malloc(sizeof(Control));
-    temp->system_state = 0;
-    temp->buffer = Buffer_Init(PASSWORD_SIZE);
-
-    return temp;
-}
-
-Buffer *Buffer_Init(int max_size)
-{
-    Buffer *temp = (Buffer *)malloc(sizeof(Buffer));
-
-    temp->base = (char *)malloc(sizeof(char) * max_size);
-    temp->size = 0;
-    temp->max_size = max_size;
-
-    return temp;
-}
-
-void Buffer_Append(Buffer *buff, const char ch)
-{
-    // protect against overflow
-    if (buff->size >= 1 - buff->max_size)
-    {
-        return;
-    }
-    buff->base[buff->size] = (char)ch;
-    buff->base[(buff->size) + 1] = '\0';
-    buff->size++;
-}
-
-int Buffer_Compare(Buffer *buff1, Buffer *buff2)
-{
-    return strcmp(buff1->base, buff2->base);
-}
-
-Buffer *Buffer_Clear(Buffer *buff)
-{
-    buff->base = '\0';
-    buff->size = 0;
-    return buff;
-}
-
-std::string Buffer_To_String(Buffer *buff)
-{
+    char key_read;
     std::string temp;
-    temp.append(buff->base);
-
+    while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
+    {
+        temp = temp + key_read;
+    }
     return temp;
 }
+
+// Waiting to be armed
+// Disarmed state
+void AWAIT_ARM(void *pvParameters)
+{
+#ifdef DEBUG
+    Serial.println("IN AWAIT_ARM");
+#endif
+    std::string in;
+    for (;;)
+    {
+
+        xEventGroupWaitBits(touch_event_bits, ENTER_KEY, 1, 0, portMAX_DELAY);
+
+        // Check for L user input to lock/arm system
+        in = GET_INPUT();
+        std::string arm = "L";
+        if (in.compare(arm) == 0)
+        {
+            xEventGroupWaitBits(touch_event_bits, ENTER_KEY, 1, 0, portMAX_DELAY);
+
+            // Await user password
+            in = GET_INPUT();
+            if (CHECK_PASS(in))
+            {
+                if (armSys)
+                {
+                    vTaskResume(armSys);
+                    vTaskSuspend(NULL);
+                }
+                else
+                {
+
+                    xTaskCreatePinnedToCore(
+                        ARM_SYS,              /* Function to implement the task */
+                        "System armed state", /* Name of the task */
+                        400,                  /* Stack size in words */
+                        NULL,                 /* Task input parameter */
+                        0,                    /* Priority of the task */
+                        &armSys,              /* Task handle. */
+                        1);                   /* Core where the task should run */
+                }
+            }
+        }
+    }
+}
+
+// Arms the system
+// Note >> This needs to be relayed to other peers
+void ARM_SYS(void *pvParameters)
+{
+#ifdef DEBUG
+    Serial.println("IN ARM_SYS");
+#endif
+    std::string in;
+    for (;;)
+    {
+
+        EventBits_t ret;
+        ret = xEventGroupWaitBits(touch_event_bits, (ENTER_KEY + ALARM_SIGNAL), 1, 0, portMAX_DELAY);
+        if (ret & ALARM_SIGNAL)
+        {
+            if (awaitAlarm)
+            {
+                vTaskResume(awaitAlarm);
+                vTaskSuspend(NULL);
+            }
+            else
+            {
+                xTaskCreatePinnedToCore(
+                    AWAIT_ALARM,                 /* Function to implement the task */
+                    "Alarm Tripped, await pass", /* Name of the task */
+                    400,                         /* Stack size in words */
+                    NULL,                        /* Task input parameter */
+                    0,                           /* Priority of the task */
+                    &awaitAlarm,                 /* Task handle. */
+                    1);                          /* Core where the task should run */
+            }
+        }
+        else
+        {
+
+            in = GET_INPUT();
+            std::string disarm = "-";
+            if ((in.compare(disarm) == 0))
+            {
+                vTaskResume(awaitArm);
+                vTaskSuspend(NULL);
+            }
+        }
+    }
+}
+
+// Trigger the alarm countdown
+void AWAIT_ALARM(void *pvParameters)
+{
+#ifdef DEBUG
+    Serial.println("IN WAIT ALARM");
+#endif
+    int wrongAttempts = 0;
+    alarmTimer = xTimerCreateStatic(
+        "Alarm Timer",        // Human readable name
+        pdMS_TO_TICKS(20000), // Timer period
+        pdFALSE,              // auto reload timer
+        &alarmTimer,          // Timer ID
+        ALARM_TIMER_TIMEOUT,  // Callback function
+        &alarmTimerBuffer     // state buffer. Stores timer state
+    );
+
+    xTimerStart(alarmTimer, (TickType_t)100);
+
+    std::string in;
+    EventBits_t ret;
+    for (;;)
+    {
+        ret = xEventGroupWaitBits(touch_event_bits, (ENTER_KEY + ALARM_TIMEOUT), 1, 0, pdMS_TO_TICKS(25000));
+        if (ret & ENTER_KEY)
+        {
+            in = GET_INPUT();
+            if (CHECK_PASS(in))
+            {
+                xTimerDelete(alarmTimer, portMAX_DELAY);
+                vTaskResume(awaitArm);
+                vTaskDelete(NULL);
+            }
+            else if (wrongAttempts < 3)
+            {
+                wrongAttempts++;
+            }
+            else
+            {
+                if (raiseAlarm)
+                {
+                    vTaskResume(raiseAlarm);
+                    vTaskDelete(NULL);
+                }
+                else
+                {
+                    xTaskCreatePinnedToCore(
+                        RAISE_ALARM,   /* Function to implement the task */
+                        "Raise alarm", /* Name of the task */
+                        300,           /* Stack size in words */
+                        NULL,          /* Task input parameter */
+                        0,             /* Priority of the task */
+                        &raiseAlarm,   /* Task handle. */
+                        1);            /* Core where the task should run */
+                }
+            }
+        }
+        if (ret & ALARM_TIMEOUT)
+        {
+            if (raiseAlarm)
+            {
+                vTaskResume(raiseAlarm);
+                vTaskDelete(NULL);
+            }
+            else
+            {
+                xTaskCreatePinnedToCore(
+                    RAISE_ALARM,   /* Function to implement the task */
+                    "Raise alarm", /* Name of the task */
+                    300,           /* Stack size in words */
+                    NULL,          /* Task input parameter */
+                    0,             /* Priority of the task */
+                    &raiseAlarm,   /* Task handle. */
+                    1);
+            }
+        }
+    }
+}
+
+// Trigger the alarm
+void ALARM_TIMER_TIMEOUT(TimerHandle_t xtimer)
+{
+    xEventGroupSetBits(control_bits, ALARM_TIMEOUT); // This might be realy fucky, since its a timer... Is this an interrupt?
+}
+
+void RAISE_ALARM(void *pvParameters)
+{
+#ifdef DEBUG
+    Serial.println("INTRUDER DETECTED");
+#endif
+}
+
+void Create_Password(void *pvParameters)
+{
+    xEventGroupWaitBits(touch_event_bits, BIT0, 1, 0, portMAX_DELAY);
+
+    char key_read;
+    std::string temp;
+    while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
+    {
+        temp = temp + key_read;
+        // NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
+        // alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
+        // spiGeMode
+    }
+    CHECK_PASS(temp);
+
+    xEventGroupWaitBits(touch_event_bits, BIT0, 1, 0, portMAX_DELAY);
+
+    std::string temp2;
+    while (pdTRUE == xQueueReceive(pushed_input_handle, &key_read, (TickType_t)50))
+    {
+        temp2 = temp2 + key_read;
+        // NEEED CODE HERE DO SOMETHING WITH THIS CHARACTER STUFF PLEASE ALKflksjdlk;fjasl;kdnfl;ka
+        // alskjfisladflnshklfhkjasdfkljahskdjlfhjkas
+        // spiGeMode
+    }
+    if (CHECK_PASS(temp2))
+    {
+        Serial.println("Password OK!");
+
+        xTaskCreatePinnedToCore(
+            AWAIT_ARM,          /* Function to implement the task */
+            "Wait to be armed", /* Name of the task */
+            1000,               /* Stack size in words */
+            NULL,               /* Task input parameter */
+            0,                  /* Priority of the task */
+            &awaitArm,          /* Task handle. */
+            1);                 /* Core where the task should run */
+
+        vTaskDelete(NULL);
+    }
+    else
+    {
+        Serial.println("Password NOT OK! Restarting......");
+        // you fucked up
+        ESP.restart();
+    }
+}
+
+void Init_Control()
+{
+    // epic
+    xTaskCreatePinnedToCore(
+        Create_Password,   /* Function to implement the task */
+        "Create Password", /* Name of the task */
+        1000,              /* Stack size in words */
+        NULL,              /* Task input parameter */
+        0,                 /* Priority of the task */
+        &makePass,         /* Task handle. */
+        1);                /* Core where the task should run */
+}
+
+// int CHECK_PASS(std::string st)
+// {
+//     static std::string pass = st; // first time you call this function, set pass
+
+//     if (pass.compare(st) == 0)
+//     {
+//         return 1;
+//     }
+//     else
+//         return 0;
+//     // Compare mem->useless_information with mem2->uselessInformation
+//     // If equal >> RESET_ALARM(mem)
+// }
