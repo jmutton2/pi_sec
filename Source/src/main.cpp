@@ -45,6 +45,10 @@ Control *control_ptr = ControlInit();
 
 // DEFINE PINS
 
+void AWAIT_ALARMTEMP()
+{
+    AWAIT_ALARM(control_ptr);
+}
 // -------------------
 
 // SETUP
@@ -63,15 +67,14 @@ void setup()
 #endif
 
 #ifdef LOW_POWER
-    // Wifi_Init();
+    WiFi_Init();
 #endif
 
 #ifdef KEYPAD
-    Keypad_Init(control_ptr);
+    // Keypad_Init(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR
-
 #endif
 
 #endif
@@ -84,23 +87,26 @@ void loop()
     delay(10);
     Touchpad_Loop();
 
+    attachInterrupt(2, AWAIT_ALARMTEMP, RISING);
+    Serial.print(control_ptr->system_state);
+    delay(1000);
 #ifdef DEBUG
     delay(10);
-    
+
     Touchpad_Loop();
 #endif
 
 #ifndef DEBUG
 
 #ifdef HIGH_POWER
-    //HP_Device_Loop(control_ptr);
+    // HP_Device_Loop(control_ptr);
 #endif
 
 #ifdef LOW_POWER
 #endif
 
 #ifdef KEYPAD
-    //Keypad_Loop(control_ptr);
+    // Keypad_Loop(control_ptr);
 #endif
 
 #ifdef DOOR_SENSOR

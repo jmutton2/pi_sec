@@ -69,6 +69,7 @@ int CHECK_PASS(std::string st)
 Control *ControlInit()
 {
     Control *temp = (Control *)malloc(sizeof(Control));
+    temp->system_state = 0;
     temp->buffer = Buffer_Init(PASSWORD_SIZE);
 
     return temp;
@@ -92,7 +93,7 @@ void Buffer_Append(Buffer *buff, const char ch)
     {
         return;
     }
-    buff->base[buff->size] = (char )ch;
+    buff->base[buff->size] = (char)ch;
     buff->base[(buff->size) + 1] = '\0';
     buff->size++;
 }
