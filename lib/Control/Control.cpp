@@ -180,26 +180,57 @@ void Keypad_Init(void)
 TaskHandle_t makePass;
 QueueHandle_t input_handle;
 
-static std::string pass;
+// static std::string pass;
 
-int CHECK_PASS(std::string st)
-{
-    pass = st; // first time you call this function, set pass
+// int CHECK_PASS(std::string st)
+// {
+//     pass = st; // first time you call this function, set pass
 
-    if (pass.compare(st) == 0)
-    {
-        return 1;
-    }
-    else
-        return 0;
-    // Compare mem->useless_information with mem2->uselessInformation
-    // If equal >> RESET_ALARM(mem)
-}
+//     if (pass.compare(st) == 0)
+//     {
+//         return 1;
+//     }
+//     else
+//         return 0;
+//     // Compare mem->useless_information with mem2->uselessInformation
+//     // If equal >> RESET_ALARM(mem)
+// }
 
 // Reads input from user
 
 // Waiting to be armed
 // Disarmed state
+
+void CREATE_ARM_SYS()
+{
+#ifdef DEBUG
+    Serial.println("armSys does not exist. Creating");
+#endif
+
+    BaseType_t TaskCreateReturn = xTaskCreatePinnedToCore(
+        ARM_SYS,              /* Function to implement the task */
+        "System armed state", /* Name of the task */
+        2000,                 /* Stack size in words */
+        NULL,                 /* Task input parameter */
+        0,                    /* Priority of the task */
+        &armSys,              /* Task handle. */
+        1);                   /* Core where the task should run */
+
+    if (TaskCreateReturn == pdPASS)
+    {
+#ifdef DEBUG
+        Serial.println("Created OK!");
+#endif
+        vTaskDelete(NULL);
+    }
+    else if (TaskCreateReturn == pdFAIL)
+    {
+#ifdef DEBUG
+        Serial.println("Something went wrong");
+#endif
+    }
+}
+
 void AWAIT_ARM(void *pvParameters)
 {
 #ifdef DEBUG
@@ -228,49 +259,10 @@ void AWAIT_ARM(void *pvParameters)
 #ifdef DEBUG
                 Serial.println("Password OK! Locking...");
 #endif
-                if (armSys)
-                {
-#ifdef DEBUG
-                    Serial.println("armSys exists. Resuming");
-#endif
-                    vTaskResume(armSys);
-                    vTaskSuspend(NULL);
-                }
-                else
-                {
-#ifdef DEBUG
-                    Serial.println("armSys does not exist. Creating");
-#endif
-
-                    BaseType_t TaskCreateReturn = xTaskCreatePinnedToCore(
-                        ARM_SYS,              /* Function to implement the task */
-                        "System armed state", /* Name of the task */
-                        2000,                 /* Stack size in words */
-                        NULL,                 /* Task input parameter */
-                        0,                    /* Priority of the task */
-                        &armSys,              /* Task handle. */
-                        1);                   /* Core where the task should run */
-
-                    if (TaskCreateReturn == pdPASS)
-                    {
-#ifdef DEBUG
-                        Serial.println("Created OK!");
-#endif
-                        vTaskSuspend(NULL);
-                    }
-                    else if (TaskCreateReturn == pdFAIL)
-                    {
-#ifdef DEBUG
-                        Serial.println("Something went wrong");
-#endif
-                    }
-                }
+                CREATE_ARM_SYS();
             }
         }
     }
-#ifdef DEBUG
-    Serial.println("EXITED FOR LOOP");
-#endif
 }
 
 void ALARM_SIGNAL_TRIGGER_ISR()
@@ -310,22 +302,16 @@ void ARM_SYS(void *pvParameters)
 #ifdef DEBUG
             Serial.println("ALARM Tripped through Web");
 #endif
-            if (awaitAlarm)
-            {
-                vTaskResume(awaitAlarm);
-                vTaskSuspend(NULL);
-            }
-            else
-            {
-                xTaskCreatePinnedToCore(
-                    AWAIT_ALARM,                /* Function to implement the task */
-                    "Alarm Tripped await pass", /* Name of the task */
-                    2000,                       /* Stack size in words */
-                    NULL,                       /* Task input parameter */
-                    0,                          /* Priority of the task */
-                    &awaitAlarm,                /* Task handle. */
-                    1);                         /* Core where the task should run */
-            }
+
+            xTaskCreatePinnedToCore(
+                AWAIT_ALARM,                /* Function to implement the task */
+                "Alarm Tripped await pass", /* Name of the task */
+                2000,                       /* Stack size in words */
+                NULL,                       /* Task input parameter */
+                0,                          /* Priority of the task */
+                &awaitAlarm,                /* Task handle. */
+                1);                         /* Core where the task should run */
+            vTaskDelete(NULL);
         }
         else
         {
@@ -346,8 +332,16 @@ void ARM_SYS(void *pvParameters)
 #ifdef DEBUG
                     Serial.println("Password OK! Disarming");
 #endif
-                    vTaskResume(awaitArm); // BUG HERE, it says password ok but then reboots
-                    vTaskSuspend(NULL);
+                    xTaskCreatePinnedToCore(
+                        AWAIT_ALARM,                /* Function to implement the task */
+                        "Alarm Tripped await pass", /* Name of the task */
+                        2000,                       /* Stack size in words */
+                        NULL,                       /* Task input parameter */
+                        0,                          /* Priority of the task */
+                        &awaitAlarm,                /* Task handle. */
+                        1);
+                    /* Core where the task should run */ // BUG HERE, it says password ok but then reboots
+                    vTaskDelete(NULL);
                 }
 #ifdef DEBUG
                 Serial.println("Password Not OK or Timeout! System Still armed");
@@ -392,7 +386,14 @@ void AWAIT_ALARM(void *pvParameters)
                 Serial.println("Password OK! Disarming");
 #endif
                 xTimerDelete(alarmTimer, portMAX_DELAY);
-                vTaskResume(awaitArm);
+                xTaskCreatePinnedToCore(
+                    AWAIT_ALARM,                /* Function to implement the task */
+                    "Alarm Tripped await pass", /* Name of the task */
+                    2000,                       /* Stack size in words */
+                    NULL,                       /* Task input parameter */
+                    0,                          /* Priority of the task */
+                    &awaitAlarm,                /* Task handle. */
+                    1);                         /* Core where the task should run */
                 vTaskDelete(NULL);
             }
             else if (wrongAttempts < 3 && CHECK_PASS(input) != 1)
@@ -408,36 +409,6 @@ void AWAIT_ALARM(void *pvParameters)
                 Serial.println("Too many wrong attempts. Prepare to die");
 #endif
 
-                if (raiseAlarm)
-                {
-                    vTaskResume(raiseAlarm);
-                    vTaskDelete(NULL);
-                }
-                else
-                {
-                    xTaskCreatePinnedToCore(
-                        RAISE_ALARM,   /* Function to implement the task */
-                        "Raise alarm", /* Name of the task */
-                        1000,          /* Stack size in words */
-                        NULL,          /* Task input parameter */
-                        0,             /* Priority of the task */
-                        &raiseAlarm,   /* Task handle. */
-                        1);            /* Core where the task should run */
-                }
-            }
-        }
-        if (ret & ALARM_TIMEOUT)
-        {
-#ifdef DEBUG
-            Serial.println("TIMES UP. Prepare to die");
-#endif
-            if (raiseAlarm)
-            {
-                vTaskResume(raiseAlarm);
-                vTaskDelete(NULL);
-            }
-            else
-            {
                 xTaskCreatePinnedToCore(
                     RAISE_ALARM,   /* Function to implement the task */
                     "Raise alarm", /* Name of the task */
@@ -445,8 +416,25 @@ void AWAIT_ALARM(void *pvParameters)
                     NULL,          /* Task input parameter */
                     0,             /* Priority of the task */
                     &raiseAlarm,   /* Task handle. */
-                    1);
+                    1);            /* Core where the task should run */
+                vTaskDelete(NULL);
             }
+        }
+        if (ret & ALARM_TIMEOUT)
+        {
+#ifdef DEBUG
+            Serial.println("TIMES UP. Prepare to die");
+#endif
+
+            xTaskCreatePinnedToCore(
+                RAISE_ALARM,   /* Function to implement the task */
+                "Raise alarm", /* Name of the task */
+                1000,          /* Stack size in words */
+                NULL,          /* Task input parameter */
+                0,             /* Priority of the task */
+                &raiseAlarm,   /* Task handle. */
+                1);
+            vTaskDelete(NULL);
         }
     }
 }
