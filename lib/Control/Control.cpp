@@ -268,6 +268,9 @@ void AWAIT_ARM(void *pvParameters)
             }
         }
     }
+#ifdef DEBUG
+    Serial.println("EXITED FOR LOOP");
+#endif
 }
 
 void ALARM_SIGNAL_TRIGGER_ISR()
@@ -288,8 +291,8 @@ void ALARM_SIGNAL_TRIGGER_ISR()
 // Note >> This needs to be relayed to other peers
 void ARM_SYS(void *pvParameters)
 {
-    digitalWrite(19, LOW);
-    // RESET ENTER KEY AND ALARM SIGNAL << becuase we suspend tasks instead of destroy adn create
+    // digitalWrite(19, LOW);
+    xEventGroupClearBits(touch_event_bits, ALARM_SIGNAL);
 
     attachInterrupt(19, ALARM_SIGNAL_TRIGGER_ISR, RISING);
 #ifdef DEBUG
@@ -317,7 +320,7 @@ void ARM_SYS(void *pvParameters)
                 xTaskCreatePinnedToCore(
                     AWAIT_ALARM,                /* Function to implement the task */
                     "Alarm Tripped await pass", /* Name of the task */
-                    1500,                       /* Stack size in words */
+                    2000,                       /* Stack size in words */
                     NULL,                       /* Task input parameter */
                     0,                          /* Priority of the task */
                     &awaitAlarm,                /* Task handle. */
