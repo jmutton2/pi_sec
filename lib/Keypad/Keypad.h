@@ -1,16 +1,12 @@
-#ifndef _TOUCH
+#ifndef _KEYPAD
+#define _KEYPAD
 
-#define _TOUCH
-
-
+#ifndef test
+#define test
+//#include "Definitions.h"
+#endif
 
 #include <Arduino.h>
-
-
-
-#include <stdlib.h>
-#include <stdio.h>
-#include "Control.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -29,14 +25,13 @@
 })
 
 //    REG_SET_BIT(IO_MUX_GPIO ## _n ## _REG, FUN_IE);
-#define CONFIGURE_GPIO_IN_PU(_n) ({ \
-    REG_SET_BIT(IO_MUX_GPIO ##_n## _REG, FUN_IE); \
-    gpio_pad_pullup(_n);            \
+#define CONFIGURE_GPIO_IN_PU(_n) ({             \
+    REG_SET_BIT(IO_MUX_GPIO##_n##_REG, FUN_IE); \
+    gpio_pad_pullup(_n);                        \
 })
 
-
-//*********VERY IMPORTANT********** 
-//IF CHANGING, YOU MUST ALSO CHANGE THE VALUES IN TOUCH_INIT()
+//*********VERY IMPORTANT**********
+// IF CHANGING, YOU MUST ALSO CHANGE THE VALUES IN TOUCH_INIT()
 #define COL_1 15 // 15
 #define COL_2 16 // 16
 #define COL_3 0  // 0
@@ -46,7 +41,7 @@
 #define ROW_3 27 // 27
 #define ROW_4 26 // 26
 
-#define ENTER_KEY 17 // 17
+#define ENTER_KEY_GPIO 17 // 17
 
 // Buffer *Touchpad_Buffer = BufferInit(32);
 const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
@@ -54,13 +49,16 @@ const char Touchpad_Lookup[4][4] = {{'L', '7', '4', '1'},
                                     {'*', '9', '6', '3'},
                                     {'-', '+', 'D', '0'}};
 
-typedef struct _keymask
-{
-    uint32_t base[4];
-} Keymask;
-
+int CHECK_PASS(std::string);
 void Init_Touchpad();
-void Send_Buffer(Buffer *buff);
-void Touchpad_Loop();
+void Touchpad_Loop(void *);
+void Create_Password(void *);
+
+void Keypad_Init(void);
+
+
 
 #endif
+
+// void Keypad_Init(void );
+// void Keypad_Loop(void );

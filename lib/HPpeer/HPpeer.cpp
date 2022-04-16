@@ -1,13 +1,15 @@
+
 // All HP peers
+
+// #include <Arduino.h>
+// #include <WiFi.h>
+#include "ESPAsyncWebServer.h"
+//#include "Control.h"
+// #include <stdio.h>
+// #include "Definitions.h"
 
 // Note >> This needs to connect to other peers
 // May use MAC address for wifi-less connections
-
-#define ALERT_INTERRUPT 2
-
-#include <WiFi.h>
-#include "ESPAsyncWebServer.h"
-#include <stdio.h>
 
 const char *ssid = "ESP32-Access-Point";
 const char *password = "123456789";
@@ -18,9 +20,7 @@ void Server_Init()
 {
   Serial.begin(115200);
 
-  // Define interrupt pin
-  pinMode(ALERT_INTERRUPT, OUTPUT);
-  digitalWrite(ALERT_INTERRUPT, LOW);
+  pinMode(19, OUTPUT);
 
   // Starts the access point
   WiFi.softAP(ssid, password);
@@ -30,11 +30,11 @@ void Server_Init()
   Serial.print("IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  // Trigger an alert
+  // Trigger an alert!
   server.on("/alert", HTTP_GET, [](AsyncWebServerRequest *request)
             {
                 request->send(200, "text/plain", "Message Received");    
-                digitalWrite(2, HIGH); });
+                digitalWrite(19, HIGH); });
 
   server.begin();
 }
