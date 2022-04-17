@@ -5,6 +5,7 @@
 
 #include <Arduino.h>
 #include <stdlib.h>
+#include "Password.h"
 //#include "Definitions.h"
 //#include "Keypad.h"
 
@@ -18,8 +19,6 @@
 
 #endif
 
-
-
 void ARM_SYS(void *);
 std::string GET_INPUT(void);
 void AWAIT_ARM(void *);
@@ -30,8 +29,6 @@ void Init_Control();
 void Init_Touchpad();
 
 #endif
-
-
 
 #ifndef _KEYPAD
 #define _KEYPAD
@@ -90,8 +87,6 @@ void Touchpad_Loop(void *);
 void Create_Password(void *);
 
 void Keypad_Init(void);
-
-
 
 #endif
 
